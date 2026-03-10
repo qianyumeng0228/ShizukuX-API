@@ -1,12 +1,27 @@
 package rikka.shizuku;
 
 import android.os.IBinder;
+import android.os.Bundle;
+import android.os.Parcel;
+import android.os.RemoteException;
+import android.graphics.Rect;
 import androidx.annotation.Nullable;
 import androidx.annotation.NonNull;
 
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
+import java.util.List;
+import java.util.Collections;
+
+import moe.shizuku.server.IActivityManagerPlus;
+import moe.shizuku.server.IWindowManagerPlus;
+import moe.shizuku.server.IOverlayManagerPlus;
+import moe.shizuku.server.INetworkGovernorPlus;
+import moe.shizuku.server.IAICorePlus;
+import moe.shizuku.server.IContinuityBridge;
+import moe.shizuku.server.IVirtualMachineManager;
+import moe.shizuku.server.IStorageProxy;
 
 /**
  * ShizukuPlusAPI provides extended features for Shizuku+, 
@@ -21,6 +36,30 @@ public class ShizukuPlusAPI {
      */
     public static boolean isEnhancedApiSupported() {
         return Shizuku.isCustomApiEnabled();
+    }
+
+    private static <T> T getPlusInterface(int code, android.os.IInterface creator) {
+        if (!isEnhancedApiSupported()) return null;
+        Parcel data = Parcel.obtain();
+        Parcel reply = Parcel.obtain();
+        try {
+            data.writeInterfaceToken("moe.shizuku.server.IShizukuService");
+            if (Shizuku.getBinder().transact(code, data, reply, 0)) {
+                reply.readException();
+                IBinder binder = reply.readStrongBinder();
+                if (binder != null) {
+                    // This is a bit of a hack since we don't have the Stub.asInterface call genericized easily here
+                    // In real usage, the caller would cast.
+                    return (T) binder;
+                }
+            }
+        } catch (RemoteException e) {
+            // Transaction failed
+        } finally {
+            reply.recycle();
+            data.recycle();
+        }
+        return null;
     }
 
     /**
@@ -194,10 +233,22 @@ public class ShizukuPlusAPI {
      */
     public static class OverlayManager {
 
+        @Nullable
+        private static IOverlayManagerPlus getService() {
+            IBinder binder = getPlusInterface(113, null);
+            return binder != null ? IOverlayManagerPlus.Stub.asInterface(binder) : null;
+        }
+
         /**
          * Enable a system overlay.
          */
         public static boolean enableOverlay(@NonNull String packageName) {
+            IOverlayManagerPlus service = getService();
+            if (service != null) {
+                try {
+                    return service.setOverlayEnabled(packageName, true);
+                } catch (RemoteException ignored) {}
+            }
             return SafeShell.run(new String[]{"cmd", "overlay", "enable", "--user", "current", packageName}).isSuccess();
         }
 
@@ -205,6 +256,12 @@ public class ShizukuPlusAPI {
          * Disable a system overlay.
          */
         public static boolean disableOverlay(@NonNull String packageName) {
+            IOverlayManagerPlus service = getService();
+            if (service != null) {
+                try {
+                    return service.setOverlayEnabled(packageName, false);
+                } catch (RemoteException ignored) {}
+            }
             return SafeShell.run(new String[]{"cmd", "overlay", "disable", "--user", "current", packageName}).isSuccess();
         }
         
@@ -212,7 +269,212 @@ public class ShizukuPlusAPI {
          * Set the priority of an overlay.
          */
         public static boolean setPriority(@NonNull String packageName, @NonNull String parentPackageName) {
+            IOverlayManagerPlus service = getService();
+            if (service != null) {
+                try {
+                    // Note: setHighestPriority only takes one arg in AIDL for now
+                    return service.setHighestPriority(packageName);
+                } catch (RemoteException ignored) {}
+            }
             return SafeShell.run(new String[]{"cmd", "overlay", "set-priority", packageName, parentPackageName}).isSuccess();
+        }
+
+        @NonNull
+        public static List<String> getAllOverlays() {
+            IOverlayManagerPlus service = getService();
+            if (service != null) {
+                try {
+                    return service.getAllOverlays();
+                } catch (RemoteException ignored) {}
+            }
+            return Collections.emptyList();
+        }
+    }
+
+    /**
+     * Advanced Activity Manager features.
+     */
+    public static class ActivityManager {
+        @Nullable
+        private static IActivityManagerPlus getService() {
+            IBinder binder = getPlusInterface(115, null);
+            return binder != null ? IActivityManagerPlus.Stub.asInterface(binder) : null;
+        }
+
+        public static boolean deepForceStop(@NonNull String packageName) {
+            IActivityManagerPlus service = getService();
+            if (service != null) {
+                try {
+                    return service.deepForceStop(packageName);
+                } catch (RemoteException ignored) {}
+            }
+            return SafeShell.run(new String[]{"am", "force-stop", packageName}).isSuccess();
+        }
+
+        public static boolean killAllBackgroundProcesses() {
+            IActivityManagerPlus service = getService();
+            if (service != null) {
+                try {
+                    return service.killAllBackgroundProcesses();
+                } catch (RemoteException ignored) {}
+            }
+            return false;
+        }
+    }
+
+    /**
+     * Advanced Window Manager and Desktop Mode features.
+     */
+    public static class WindowManager {
+        @Nullable
+        private static IWindowManagerPlus getService() {
+            IBinder binder = getPlusInterface(110, null);
+            return binder != null ? IWindowManagerPlus.Stub.asInterface(binder) : null;
+        }
+
+        public static void forceResizable(@NonNull String packageName, boolean enabled) {
+            IWindowManagerPlus service = getService();
+            if (service != null) {
+                try {
+                    service.forceResizable(packageName, enabled);
+                } catch (RemoteException ignored) {}
+            }
+        }
+
+        public static void setAlwaysOnTop(int taskId, boolean enabled) {
+            IWindowManagerPlus service = getService();
+            if (service != null) {
+                try {
+                    service.setAlwaysOnTop(taskId, enabled);
+                } catch (RemoteException ignored) {}
+            }
+        }
+    }
+
+    /**
+     * Privileged Network and DNS management.
+     */
+    public static class NetworkGovernor {
+        @Nullable
+        private static INetworkGovernorPlus getService() {
+            IBinder binder = getPlusInterface(114, null);
+            return binder != null ? INetworkGovernorPlus.Stub.asInterface(binder) : null;
+        }
+
+        public static boolean setPrivateDns(@Nullable String mode, @Nullable String hostname) {
+            INetworkGovernorPlus service = getService();
+            if (service != null) {
+                try {
+                    return service.setPrivateDns(mode, hostname);
+                } catch (RemoteException ignored) {}
+            }
+            return false;
+        }
+    }
+
+    /**
+     * Intelligence Bridge (AI) and screen-aware features.
+     */
+    public static class AICore {
+        @Nullable
+        private static IAICorePlus getService() {
+            IBinder binder = getPlusInterface(109, null);
+            return binder != null ? IAICorePlus.Stub.asInterface(binder) : null;
+        }
+
+        public static int getPixelColor(int x, int y) {
+            IAICorePlus service = getService();
+            if (service != null) {
+                try {
+                    return service.getPixelColor(x, y);
+                } catch (RemoteException ignored) {}
+            }
+            return 0;
+        }
+    }
+
+    /**
+     * Multi-device privileged continuity features.
+     */
+    public static class Continuity {
+        @Nullable
+        private static IContinuityBridge getService() {
+            IBinder binder = getPlusInterface(111, null);
+            return binder != null ? IContinuityBridge.Stub.asInterface(binder) : null;
+        }
+
+        @NonNull
+        public static List<String> listEligibleDevices() {
+            IContinuityBridge service = getService();
+            if (service != null) {
+                try {
+                    return service.listEligibleDevices();
+                } catch (RemoteException ignored) {}
+            }
+            return Collections.emptyList();
+        }
+    }
+
+    /**
+     * Virtual Machine Manager (AVF) for Linux/Microdroid.
+     */
+    public static class VirtualMachine {
+        @Nullable
+        private static IVirtualMachineManager getService() {
+            IBinder binder = getPlusInterface(107, null);
+            return binder != null ? IVirtualMachineManager.Stub.asInterface(binder) : null;
+        }
+
+        @NonNull
+        public static List<String> list() {
+            IVirtualMachineManager service = getService();
+            if (service != null) {
+                try {
+                    return service.list();
+                } catch (RemoteException ignored) {}
+            }
+            return Collections.emptyList();
+        }
+
+        public static boolean start(@NonNull String name) {
+            IVirtualMachineManager service = getService();
+            if (service != null) {
+                try {
+                    return service.start(name);
+                } catch (RemoteException ignored) {}
+            }
+            return false;
+        }
+    }
+
+    /**
+     * Storage Bridge for bypassing Android 16/17 storage restrictions.
+     */
+    public static class StorageProxy {
+        @Nullable
+        private static IStorageProxy getService() {
+            IBinder binder = getPlusInterface(108, null); // 108 is getStorageProxy
+            return binder != null ? IStorageProxy.Stub.asInterface(binder) : null;
+        }
+
+        public static boolean exists(@NonNull String path) {
+            IStorageProxy service = getService();
+            if (service != null) {
+                try {
+                    return service.exists(path);
+                } catch (RemoteException ignored) {}
+            }
+            return false;
+        }
+
+        public static boolean delete(@NonNull String path) {
+            IStorageProxy service = getService();
+            if (service != null) {
+                try {
+                    return service.delete(path);
+                } catch (RemoteException ignored) {}
+            }
+            return false;
         }
     }
 
