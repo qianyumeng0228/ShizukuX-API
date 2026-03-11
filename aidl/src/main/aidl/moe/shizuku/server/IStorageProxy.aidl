@@ -20,6 +20,11 @@ interface IStorageProxy {
     List<String> listFiles(String path);
 
     /**
+     * Delete a file or empty directory at the given path.
+     */
+    boolean delete(String path);
+
+    /**
      * Get file information.
      */
     Bundle getFileInfo(String path);
