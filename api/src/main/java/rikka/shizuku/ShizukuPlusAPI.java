@@ -5,6 +5,7 @@ import android.os.Bundle;
 import android.os.Parcel;
 import android.os.RemoteException;
 import android.graphics.Rect;
+import android.util.Log;
 import androidx.annotation.Nullable;
 import androidx.annotation.NonNull;
 
@@ -24,10 +25,11 @@ import moe.shizuku.server.IVirtualMachineManager;
 import moe.shizuku.server.IStorageProxy;
 
 /**
- * ShizukuPlusAPI provides extended features for Shizuku+, 
+ * ShizukuPlusAPI provides extended features for Shizuku+,
  * including Dhizuku (Device Owner) compatibility and enhanced server communication.
  */
 public class ShizukuPlusAPI {
+    private static final String TAG = "ShizukuPlusAPI";
 
     /**
      * Check if the connected server supports Shizuku+ Enhanced API features.
@@ -247,7 +249,9 @@ public class ShizukuPlusAPI {
             if (service != null) {
                 try {
                     return service.setOverlayEnabled(packageName, true);
-                } catch (RemoteException ignored) {}
+                } catch (RemoteException e) {
+                    Log.w(TAG, "Failed to enable overlay " + packageName, e);
+                }
             }
             return SafeShell.run(new String[]{"cmd", "overlay", "enable", "--user", "current", packageName}).isSuccess();
         }
@@ -260,7 +264,9 @@ public class ShizukuPlusAPI {
             if (service != null) {
                 try {
                     return service.setOverlayEnabled(packageName, false);
-                } catch (RemoteException ignored) {}
+                } catch (RemoteException e) {
+                    Log.w(TAG, "Failed to disable overlay " + packageName, e);
+                }
             }
             return SafeShell.run(new String[]{"cmd", "overlay", "disable", "--user", "current", packageName}).isSuccess();
         }
@@ -274,7 +280,9 @@ public class ShizukuPlusAPI {
                 try {
                     // Note: setHighestPriority only takes one arg in AIDL for now
                     return service.setHighestPriority(packageName);
-                } catch (RemoteException ignored) {}
+                } catch (RemoteException e) {
+                    Log.w(TAG, "Failed to set priority for overlay " + packageName, e);
+                }
             }
             return SafeShell.run(new String[]{"cmd", "overlay", "set-priority", packageName, parentPackageName}).isSuccess();
         }
@@ -285,7 +293,9 @@ public class ShizukuPlusAPI {
             if (service != null) {
                 try {
                     return service.getAllOverlays();
-                } catch (RemoteException ignored) {}
+                } catch (RemoteException e) {
+                    Log.w(TAG, "Failed to get all overlays", e);
+                }
             }
             return Collections.emptyList();
         }
@@ -306,7 +316,9 @@ public class ShizukuPlusAPI {
             if (service != null) {
                 try {
                     return service.deepForceStop(packageName);
-                } catch (RemoteException ignored) {}
+                } catch (RemoteException e) {
+                    Log.w(TAG, "Failed to deep force stop " + packageName, e);
+                }
             }
             return SafeShell.run(new String[]{"am", "force-stop", packageName}).isSuccess();
         }
@@ -316,7 +328,9 @@ public class ShizukuPlusAPI {
             if (service != null) {
                 try {
                     return service.killAllBackgroundProcesses();
-                } catch (RemoteException ignored) {}
+                } catch (RemoteException e) {
+                    Log.w(TAG, "Failed to kill all background processes", e);
+                }
             }
             return false;
         }
@@ -337,7 +351,9 @@ public class ShizukuPlusAPI {
             if (service != null) {
                 try {
                     service.forceResizable(packageName, enabled);
-                } catch (RemoteException ignored) {}
+                } catch (RemoteException e) {
+                    Log.w(TAG, "Failed to force resizable for " + packageName, e);
+                }
             }
         }
 
@@ -346,7 +362,9 @@ public class ShizukuPlusAPI {
             if (service != null) {
                 try {
                     service.setAlwaysOnTop(taskId, enabled);
-                } catch (RemoteException ignored) {}
+                } catch (RemoteException e) {
+                    Log.w(TAG, "Failed to set always on top for task " + taskId, e);
+                }
             }
         }
     }
@@ -366,7 +384,9 @@ public class ShizukuPlusAPI {
             if (service != null) {
                 try {
                     return service.setPrivateDns(mode, hostname);
-                } catch (RemoteException ignored) {}
+                } catch (RemoteException e) {
+                    Log.w(TAG, "Failed to set private DNS mode=" + mode + " hostname=" + hostname, e);
+                }
             }
             return false;
         }
@@ -387,7 +407,9 @@ public class ShizukuPlusAPI {
             if (service != null) {
                 try {
                     return service.getPixelColor(x, y);
-                } catch (RemoteException ignored) {}
+                } catch (RemoteException e) {
+                    Log.w(TAG, "Failed to get pixel color at (" + x + ", " + y + ")", e);
+                }
             }
             return 0;
         }
@@ -409,7 +431,9 @@ public class ShizukuPlusAPI {
             if (service != null) {
                 try {
                     return service.listEligibleDevices();
-                } catch (RemoteException ignored) {}
+                } catch (RemoteException e) {
+                    Log.w(TAG, "Failed to list eligible devices", e);
+                }
             }
             return Collections.emptyList();
         }
@@ -431,7 +455,9 @@ public class ShizukuPlusAPI {
             if (service != null) {
                 try {
                     return service.list();
-                } catch (RemoteException ignored) {}
+                } catch (RemoteException e) {
+                    Log.w(TAG, "Failed to list virtual machines", e);
+                }
             }
             return Collections.emptyList();
         }
@@ -441,7 +467,9 @@ public class ShizukuPlusAPI {
             if (service != null) {
                 try {
                     return service.start(name);
-                } catch (RemoteException ignored) {}
+                } catch (RemoteException e) {
+                    Log.w(TAG, "Failed to start virtual machine " + name, e);
+                }
             }
             return false;
         }
@@ -462,7 +490,9 @@ public class ShizukuPlusAPI {
             if (service != null) {
                 try {
                     return service.exists(path);
-                } catch (RemoteException ignored) {}
+                } catch (RemoteException e) {
+                    Log.w(TAG, "Failed to check if path exists: " + path, e);
+                }
             }
             return false;
         }
@@ -472,7 +502,9 @@ public class ShizukuPlusAPI {
             if (service != null) {
                 try {
                     return service.delete(path);
-                } catch (RemoteException ignored) {}
+                } catch (RemoteException e) {
+                    Log.w(TAG, "Failed to delete path: " + path, e);
+                }
             }
             return false;
         }
