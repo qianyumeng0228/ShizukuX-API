@@ -28,4 +28,9 @@ interface IStorageProxy {
      * Get file information.
      */
     Bundle getFileInfo(String path);
+
+    /**
+     * Create a directory at the given path.
+     */
+    boolean mkdir(String path);
 }

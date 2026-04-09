@@ -73,4 +73,12 @@ interface IShizukuService {
     INetworkGovernorPlus getNetworkGovernorPlus() = 114;
 
     IActivityManagerPlus getActivityManagerPlus() = 115;
+
+    void elevateApp(String packageName) = 117;
+
+    List<String> getRecentLogs() = 118;
+
+    String getPlusSetting(String key) = 119;
+
+    boolean isPlusFeatureEnabled(String key) = 120;
  }
