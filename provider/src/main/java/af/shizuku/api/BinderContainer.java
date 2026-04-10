@@ -1,4 +1,4 @@
-package moe.shizuku.api;
+package af.shizuku.api;
 
 import android.os.IBinder;
 import android.os.Parcel;

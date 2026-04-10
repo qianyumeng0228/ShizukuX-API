@@ -1,4 +1,4 @@
-package moe.shizuku.server;
+package af.shizuku.server;
 
 interface IRemoteProcess {
 

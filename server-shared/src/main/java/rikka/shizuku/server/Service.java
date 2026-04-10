@@ -17,10 +17,10 @@ import java.io.File;
 import java.io.IOException;
 import java.util.Arrays;
 
-import moe.shizuku.server.IRemoteProcess;
-import moe.shizuku.server.IShizukuApplication;
-import moe.shizuku.server.IShizukuService;
-import moe.shizuku.server.IShizukuServiceConnection;
+import af.shizuku.server.IRemoteProcess;
+import af.shizuku.server.IShizukuApplication;
+import af.shizuku.server.IShizukuService;
+import af.shizuku.server.IShizukuServiceConnection;
 import rikka.hidden.compat.PermissionManagerApis;
 import rikka.rish.RishConfig;
 import rikka.rish.RishService;

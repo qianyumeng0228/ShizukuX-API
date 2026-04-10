@@ -1,16 +1,16 @@
-package moe.shizuku.server;
+package af.shizuku.server;
 
-import moe.shizuku.server.IRemoteProcess;
-import moe.shizuku.server.IShizukuApplication;
-import moe.shizuku.server.IShizukuServiceConnection;
-import moe.shizuku.server.IVirtualMachineManager;
-import moe.shizuku.server.IStorageProxy;
-import moe.shizuku.server.IAICorePlus;
-import moe.shizuku.server.IWindowManagerPlus;
-import moe.shizuku.server.IContinuityBridge;
-import moe.shizuku.server.IOverlayManagerPlus;
-import moe.shizuku.server.INetworkGovernorPlus;
-import moe.shizuku.server.IActivityManagerPlus;
+import af.shizuku.server.IRemoteProcess;
+import af.shizuku.server.IShizukuApplication;
+import af.shizuku.server.IShizukuServiceConnection;
+import af.shizuku.server.IVirtualMachineManager;
+import af.shizuku.server.IStorageProxy;
+import af.shizuku.server.IAICorePlus;
+import af.shizuku.server.IWindowManagerPlus;
+import af.shizuku.server.IContinuityBridge;
+import af.shizuku.server.IOverlayManagerPlus;
+import af.shizuku.server.INetworkGovernorPlus;
+import af.shizuku.server.IActivityManagerPlus;
 
 interface IShizukuService {
 

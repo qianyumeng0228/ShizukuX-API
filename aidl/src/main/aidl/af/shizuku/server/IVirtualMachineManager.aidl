@@ -1,4 +1,4 @@
-package moe.shizuku.server;
+package af.shizuku.server;
 
 interface IVirtualMachineManager {
     /**
@@ -27,7 +27,7 @@ interface IVirtualMachineManager {
     String getStatus(String name);
 
     /**
-     * List all Virtual Machines managed by ShizukuPlus.
+     * List all Virtual Machines managed by Shizuku+.
      */
     List<String> list();
 }

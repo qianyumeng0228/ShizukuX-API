@@ -17,21 +17,21 @@ import java.util.Collections;
 import android.graphics.Bitmap;
 import android.os.ParcelFileDescriptor;
 
-import moe.shizuku.server.IActivityManagerPlus;
-import moe.shizuku.server.IWindowManagerPlus;
-import moe.shizuku.server.IOverlayManagerPlus;
-import moe.shizuku.server.INetworkGovernorPlus;
-import moe.shizuku.server.IAICorePlus;
-import moe.shizuku.server.IContinuityBridge;
-import moe.shizuku.server.IVirtualMachineManager;
-import moe.shizuku.server.IStorageProxy;
+import af.shizuku.server.IActivityManagerPlus;
+import af.shizuku.server.IWindowManagerPlus;
+import af.shizuku.server.IOverlayManagerPlus;
+import af.shizuku.server.INetworkGovernorPlus;
+import af.shizuku.server.IAICorePlus;
+import af.shizuku.server.IContinuityBridge;
+import af.shizuku.server.IVirtualMachineManager;
+import af.shizuku.server.IStorageProxy;
 
 /**
- * ShizukuPlusAPI provides extended features for Shizuku+,
+ * Shizuku+API provides extended features for Shizuku+,
  * including Dhizuku (Device Owner) compatibility and enhanced server communication.
  */
-public class ShizukuPlusAPI {
-    private static final String TAG = "ShizukuPlusAPI";
+public class Shizuku+API {
+    private static final String TAG = "Shizuku+API";
 
     /**
      * Check if the connected server supports Shizuku+ Enhanced API features.
@@ -47,7 +47,7 @@ public class ShizukuPlusAPI {
         Parcel data = Parcel.obtain();
         Parcel reply = Parcel.obtain();
         try {
-            data.writeInterfaceToken("moe.shizuku.server.IShizukuService");
+            data.writeInterfaceToken("af.shizuku.server.IShizukuService");
             if (Shizuku.getBinder().transact(code, data, reply, 0)) {
                 reply.readException();
                 IBinder binder = reply.readStrongBinder();

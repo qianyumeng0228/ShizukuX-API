@@ -1,8 +1,8 @@
-package moe.shizuku.server;
+package af.shizuku.server;
 
 interface IContinuityBridge {
     /**
-     * Sync a piece of data to another device running ShizukuPlus.
+     * Sync a piece of data to another device running Shizuku+.
      */
     boolean syncData(String targetDeviceId, String key, in Bundle data);
 
@@ -12,7 +12,7 @@ interface IContinuityBridge {
     void registerContinuityListener(IBinder listener);
 
     /**
-     * List nearby devices running ShizukuPlus that are eligible for handoff.
+     * List nearby devices running Shizuku+ that are eligible for handoff.
      */
     List<String> listEligibleDevices();
 
