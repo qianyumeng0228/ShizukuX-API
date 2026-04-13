@@ -44,21 +44,21 @@ public class ShizukuPlusAPI {
 
     private static <T> T getPlusInterface(int code, android.os.IInterface creator) {
         if (!isEnhancedApiSupported()) return null;
+        IBinder serviceBinder = Shizuku.getBinder();
+        if (serviceBinder == null) return null; // Shizuku not connected
         Parcel data = Parcel.obtain();
         Parcel reply = Parcel.obtain();
         try {
             data.writeInterfaceToken("af.shizuku.server.IShizukuService");
-            if (Shizuku.getBinder().transact(code, data, reply, 0)) {
+            if (serviceBinder.transact(code, data, reply, 0)) {
                 reply.readException();
                 IBinder binder = reply.readStrongBinder();
                 if (binder != null) {
-                    // This is a bit of a hack since we don't have the Stub.asInterface call genericized easily here
-                    // In real usage, the caller would cast.
                     return (T) binder;
                 }
             }
         } catch (RemoteException e) {
-            // Transaction failed
+            // Transaction failed — binder died
         } finally {
             reply.recycle();
             data.recycle();
@@ -138,26 +138,34 @@ public class ShizukuPlusAPI {
                 java.lang.reflect.Method method = Shizuku.class.getDeclaredMethod("newProcess", String[].class, String[].class, String.class);
                 method.setAccessible(true);
                 ShizukuRemoteProcess process = (ShizukuRemoteProcess) method.invoke(null, cmd, null, null);
-                
+
                 if (process == null) return new CommandResult(-1, "", "Process creation failed");
 
-                StringBuilder output = new StringBuilder();
-                StringBuilder error = new StringBuilder();
+                final StringBuilder output = new StringBuilder();
+                final StringBuilder error = new StringBuilder();
 
-                try (BufferedReader reader = new BufferedReader(new InputStreamReader(process.getInputStream(), StandardCharsets.UTF_8))) {
+                // Drain stderr on a separate thread to prevent pipe deadlock:
+                // if the process fills the stderr OS buffer while we block on stdout, it hangs.
+                Thread stderrThread = new Thread(() -> {
+                    try (BufferedReader reader = new BufferedReader(
+                            new InputStreamReader(process.getErrorStream(), StandardCharsets.UTF_8))) {
+                        String line;
+                        while ((line = reader.readLine()) != null) {
+                            error.append(line).append('\n');
+                        }
+                    } catch (Exception ignored) {}
+                });
+                stderrThread.start();
+
+                try (BufferedReader reader = new BufferedReader(
+                        new InputStreamReader(process.getInputStream(), StandardCharsets.UTF_8))) {
                     String line;
                     while ((line = reader.readLine()) != null) {
                         output.append(line).append('\n');
                     }
                 }
 
-                try (BufferedReader reader = new BufferedReader(new InputStreamReader(process.getErrorStream(), StandardCharsets.UTF_8))) {
-                    String line;
-                    while ((line = reader.readLine()) != null) {
-                        error.append(line).append('\n');
-                    }
-                }
-
+                stderrThread.join();
                 int exitCode = process.waitFor();
                 return new CommandResult(exitCode, output.toString().trim(), error.toString().trim());
             } catch (Exception e) {
