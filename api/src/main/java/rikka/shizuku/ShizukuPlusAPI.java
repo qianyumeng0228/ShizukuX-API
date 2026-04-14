@@ -58,7 +58,7 @@ public class ShizukuPlusAPI {
                 }
             }
         } catch (RemoteException e) {
-            // Transaction failed — binder died
+            Log.w(TAG, "getPlusInterface: binder transaction failed", e);
         } finally {
             reply.recycle();
             data.recycle();
