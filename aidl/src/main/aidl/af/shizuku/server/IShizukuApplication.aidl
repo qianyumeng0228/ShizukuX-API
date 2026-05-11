@@ -8,6 +8,8 @@ interface IShizukuApplication {
 
     oneway void dispatchLog(in String appName, in String packageName, in String action) = 3;
 
+    oneway void dispatchSentryEvent(in String eventJson) = 4;
+
     // Sui only
     void showPermissionConfirmation(int requestUid, int requestPid, in String requestPackageName, int requestCode) = 10000;
 }

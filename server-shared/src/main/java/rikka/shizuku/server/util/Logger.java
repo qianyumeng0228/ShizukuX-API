@@ -1,144 +1,129 @@
 package rikka.shizuku.server.util;
 
 import android.util.Log;
-
 import java.io.IOException;
 import java.util.Locale;
 import java.util.logging.FileHandler;
 import java.util.logging.SimpleFormatter;
 
+/**
+ * Shizuku+ Server-side Logger.
+ * This class handles logging for the privileged server process.
+ * It logs to Logcat with a consistent 'ShizukuPlus' prefix for easy filtering.
+ */
 public class Logger {
 
+    public interface EventDispatcher {
+        void dispatch(int priority, String tag, String message, Throwable throwable);
+    }
+
+    private static EventDispatcher sEventDispatcher;
+
+    public static void setEventDispatcher(EventDispatcher dispatcher) {
+        sEventDispatcher = dispatcher;
+    }
+
     private final String tag;
-    private final java.util.logging.Logger LOGGER;
+    private final java.util.logging.Logger fileLogger;
 
     public Logger(String tag) {
-        this.tag = tag;
-        this.LOGGER = null;
+        this.tag = "ShizukuPlus:" + tag;
+        this.fileLogger = null;
     }
 
-    public Logger(String tag, String file) {
-        this.tag = tag;
-        this.LOGGER = java.util.logging.Logger.getLogger(tag);
+    public Logger(String tag, String logFilePath) {
+        this.tag = "ShizukuPlus:" + tag;
+        java.util.logging.Logger logger = null;
         try {
-            FileHandler fh = new FileHandler(file);
+            logger = java.util.logging.Logger.getLogger(this.tag);
+            FileHandler fh = new FileHandler(logFilePath, true);
             fh.setFormatter(new SimpleFormatter());
-            LOGGER.addHandler(fh);
+            logger.addHandler(fh);
         } catch (IOException e) {
-            e.printStackTrace();
+            Log.e(this.tag, "Failed to initialize file logger", e);
         }
-    }
-
-    public boolean isLoggable(String tag, int level) {
-        return true;
+        this.fileLogger = logger;
     }
 
     public void v(String msg) {
-        if (isLoggable(tag, Log.VERBOSE)) {
-            println(Log.VERBOSE, msg);
-        }
+        println(Log.VERBOSE, msg, null);
     }
 
     public void v(String fmt, Object... args) {
-        if (isLoggable(tag, Log.VERBOSE)) {
-            println(Log.VERBOSE, String.format(Locale.ENGLISH, fmt, args));
-        }
+        println(Log.VERBOSE, format(fmt, args), null);
     }
 
     public void v(String msg, Throwable tr) {
-        if (isLoggable(tag, Log.VERBOSE)) {
-            println(Log.VERBOSE, msg + '\n' + Log.getStackTraceString(tr));
-        }
+        println(Log.VERBOSE, msg, tr);
     }
 
     public void d(String msg) {
-        if (isLoggable(tag, Log.DEBUG)) {
-            println(Log.DEBUG, msg);
-        }
+        println(Log.DEBUG, msg, null);
     }
 
     public void d(String fmt, Object... args) {
-        if (isLoggable(tag, Log.DEBUG)) {
-            println(Log.DEBUG, String.format(Locale.ENGLISH, fmt, args));
-        }
+        println(Log.DEBUG, format(fmt, args), null);
     }
 
     public void d(String msg, Throwable tr) {
-        if (isLoggable(tag, Log.DEBUG)) {
-            println(Log.DEBUG, msg + '\n' + Log.getStackTraceString(tr));
-        }
+        println(Log.DEBUG, msg, tr);
     }
 
     public void i(String msg) {
-        if (isLoggable(tag, Log.INFO)) {
-            println(Log.INFO, msg);
-        }
+        println(Log.INFO, msg, null);
     }
 
     public void i(String fmt, Object... args) {
-        if (isLoggable(tag, Log.INFO)) {
-            println(Log.INFO, String.format(Locale.ENGLISH, fmt, args));
-        }
+        println(Log.INFO, format(fmt, args), null);
     }
 
     public void i(String msg, Throwable tr) {
-        if (isLoggable(tag, Log.INFO)) {
-            println(Log.INFO, msg + '\n' + Log.getStackTraceString(tr));
-        }
+        println(Log.INFO, msg, tr);
     }
 
     public void w(String msg) {
-        if (isLoggable(tag, Log.WARN)) {
-            println(Log.WARN, msg);
-        }
+        println(Log.WARN, msg, null);
     }
 
     public void w(String fmt, Object... args) {
-        if (isLoggable(tag, Log.WARN)) {
-            println(Log.WARN, String.format(Locale.ENGLISH, fmt, args));
-        }
-    }
-
-    public void w(Throwable tr, String fmt, Object... args) {
-        if (isLoggable(tag, Log.WARN)) {
-            println(Log.WARN, String.format(Locale.ENGLISH, fmt, args) + '\n' + Log.getStackTraceString(tr));
-        }
+        println(Log.WARN, format(fmt, args), null);
     }
 
     public void w(String msg, Throwable tr) {
-        if (isLoggable(tag, Log.WARN)) {
-            println(Log.WARN, msg + '\n' + Log.getStackTraceString(tr));
-        }
+        println(Log.WARN, msg, tr);
     }
 
     public void e(String msg) {
-        if (isLoggable(tag, Log.ERROR)) {
-            println(Log.ERROR, msg);
-        }
+        println(Log.ERROR, msg, null);
     }
 
     public void e(String fmt, Object... args) {
-        if (isLoggable(tag, Log.ERROR)) {
-            println(Log.ERROR, String.format(Locale.ENGLISH, fmt, args));
-        }
+        println(Log.ERROR, format(fmt, args), null);
     }
 
     public void e(String msg, Throwable tr) {
-        if (isLoggable(tag, Log.ERROR)) {
-            println(Log.ERROR, msg + '\n' + Log.getStackTraceString(tr));
-        }
+        println(Log.ERROR, msg, tr);
     }
 
-    public void e(Throwable tr, String fmt, Object... args) {
-        if (isLoggable(tag, Log.ERROR)) {
-            println(Log.ERROR, String.format(Locale.ENGLISH, fmt, args) + '\n' + Log.getStackTraceString(tr));
-        }
+    private String format(String fmt, Object... args) {
+        return args == null || args.length == 0 ? fmt : String.format(Locale.ENGLISH, fmt, args);
     }
 
-    public int println(int priority, String msg) {
-        if (LOGGER != null) {
-            LOGGER.info(msg);
+    private void println(int priority, String msg, Throwable tr) {
+        String fullMsg = tr == null ? msg : msg + "\n" + Log.getStackTraceString(tr);
+        
+        if (fileLogger != null && priority >= Log.INFO) {
+            if (priority >= Log.WARN) {
+                fileLogger.warning(fullMsg);
+            } else {
+                fileLogger.info(fullMsg);
+            }
         }
-        return Log.println(priority, tag, msg);
+        
+        Log.println(priority, tag, fullMsg);
+
+        if (sEventDispatcher != null && priority >= Log.WARN) {
+            sEventDispatcher.dispatch(priority, tag, msg, tr);
+        }
     }
 }

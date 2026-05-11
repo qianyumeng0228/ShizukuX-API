@@ -73,6 +73,11 @@ public class Shizuku {
         }
 
         @Override
+        public void dispatchSentryEvent(String eventJson) {
+            scheduleSentryEventListener(eventJson);
+        }
+
+        @Override
         public void showPermissionConfirmation(int requestUid, int requestPid, String requestPackageName, int requestCode) {
             // non-app
         }
@@ -191,6 +196,10 @@ public class Shizuku {
         void onLog(String appName, String packageName, String action);
     }
 
+    public interface OnSentryEventListener {
+        void onSentryEvent(String eventJson);
+    }
+
     private static class ListenerHolder<T> {
 
         private final T listener;
@@ -219,6 +228,7 @@ public class Shizuku {
     private static final List<ListenerHolder<OnBinderDeadListener>> DEAD_LISTENERS = new ArrayList<>();
     private static final List<ListenerHolder<OnRequestPermissionResultListener>> PERMISSION_LISTENERS = new ArrayList<>();
     private static final List<ListenerHolder<OnLogListener>> LOG_LISTENERS = new ArrayList<>();
+    private static final List<ListenerHolder<OnSentryEventListener>> SENTRY_EVENT_LISTENERS = new ArrayList<>();
     private static final Handler MAIN_HANDLER = new Handler(Looper.getMainLooper());
 
     /**
@@ -443,6 +453,34 @@ public class Shizuku {
     public static void removeLogListener(@NonNull OnLogListener listener) {
         synchronized (RECEIVED_LISTENERS) {
             LOG_LISTENERS.removeIf(holder -> holder.listener == listener);
+        }
+    }
+
+    public static void addSentryEventListener(@NonNull OnSentryEventListener listener) {
+        synchronized (RECEIVED_LISTENERS) {
+            SENTRY_EVENT_LISTENERS.add(new ListenerHolder<>(listener, null));
+        }
+    }
+
+    public static void removeSentryEventListener(@NonNull OnSentryEventListener listener) {
+        synchronized (RECEIVED_LISTENERS) {
+            SENTRY_EVENT_LISTENERS.removeIf(holder -> holder.listener == listener);
+        }
+    }
+
+    private static void scheduleSentryEventListener(String eventJson) {
+        synchronized (RECEIVED_LISTENERS) {
+            for (ListenerHolder<OnSentryEventListener> holder : SENTRY_EVENT_LISTENERS) {
+                if (holder.handler != null) {
+                    holder.handler.post(() -> holder.listener.onSentryEvent(eventJson));
+                } else {
+                    if (Looper.myLooper() == Looper.getMainLooper()) {
+                        holder.listener.onSentryEvent(eventJson);
+                    } else {
+                        MAIN_HANDLER.post(() -> holder.listener.onSentryEvent(eventJson));
+                    }
+                }
+            }
         }
     }
 
