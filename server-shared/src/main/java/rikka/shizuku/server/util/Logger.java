@@ -93,6 +93,10 @@ public class Logger {
         println(Log.WARN, msg, tr);
     }
 
+    public void w(Throwable tr, String fmt, Object... args) {
+        println(Log.WARN, format(fmt, args), tr);
+    }
+
     public void e(String msg) {
         println(Log.ERROR, msg, null);
     }
@@ -103,6 +107,10 @@ public class Logger {
 
     public void e(String msg, Throwable tr) {
         println(Log.ERROR, msg, tr);
+    }
+
+    public void e(Throwable tr, String fmt, Object... args) {
+        println(Log.ERROR, format(fmt, args), tr);
     }
 
     private String format(String fmt, Object... args) {
