@@ -12,6 +12,7 @@ import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.IBinder;
+import android.os.Parcelable;
 import android.util.Log;
 
 import androidx.annotation.NonNull;
@@ -122,7 +123,7 @@ public class ShizukuProvider extends ContentProvider {
         BroadcastReceiver receiver = new BroadcastReceiver() {
             @Override
             public void onReceive(Context context, Intent intent) {
-                BinderContainer container = intent.getParcelableExtra(EXTRA_BINDER);
+                BinderContainer container = getBinderContainer(intent);
                 if (container != null && container.binder != null) {
                     Log.i(TAG, "binder received from broadcast");
                     Shizuku.onBinderReceived(container.binder, context.getPackageName());
@@ -147,7 +148,7 @@ public class ShizukuProvider extends ContentProvider {
         if (reply != null) {
             reply.setClassLoader(BinderContainer.class.getClassLoader());
 
-            BinderContainer container = reply.getParcelable(EXTRA_BINDER);
+            BinderContainer container = getBinderContainer(reply);
             if (container != null && container.binder != null) {
                 Log.i(TAG, "Binder received from other process");
                 Shizuku.onBinderReceived(container.binder, context.getPackageName());
@@ -213,11 +214,7 @@ public class ShizukuProvider extends ContentProvider {
             return;
         }
 
-        BinderContainer container = extras.getParcelable(EXTRA_BINDER);
-        if (container == null) {
-            container = extras.getParcelable("rikka.shizuku.intent.extra.BINDER");
-        }
-        
+        BinderContainer container = getBinderContainer(extras);
         if (container != null && container.binder != null) {
             Log.d(TAG, "binder received");
 
@@ -232,6 +229,54 @@ public class ShizukuProvider extends ContentProvider {
                         .setPackage(getContext().getPackageName());
                 getContext().sendBroadcast(intent);
             }
+        }
+    }
+
+    // Shizuku server delivers the binder as different BinderContainer flavors depending on whether
+    // this package is the active manager app (af.shizuku.api.BinderContainer) or a plain client
+    // (rikka.shizuku.BinderContainer / moe.shizuku.api.BinderContainer). When both the release and
+    // debug flavors of Shizuku+ are installed, the server picks the release build as "the manager"
+    // and routes the debug build through the plain-client path, so a strict single-flavor cast here
+    // would throw ClassCastException and the app would never see the binder. Accept any flavor.
+    private static BinderContainer toBinderContainer(Parcelable p) {
+        if (p instanceof BinderContainer) {
+            return (BinderContainer) p;
+        }
+        if (p instanceof rikka.shizuku.BinderContainer) {
+            return new BinderContainer(((rikka.shizuku.BinderContainer) p).binder);
+        }
+        if (p instanceof moe.shizuku.api.BinderContainer) {
+            return new BinderContainer(((moe.shizuku.api.BinderContainer) p).binder);
+        }
+        return null;
+    }
+
+    private static BinderContainer getBinderContainer(Bundle extras, String key) {
+        try {
+            return toBinderContainer(extras.getParcelable(key));
+        } catch (Throwable tr) {
+            Log.w(TAG, "Failed to read binder from extra key " + key, tr);
+            return null;
+        }
+    }
+
+    private static BinderContainer getBinderContainer(Bundle extras) {
+        BinderContainer container = getBinderContainer(extras, EXTRA_BINDER);
+        if (container == null) {
+            container = getBinderContainer(extras, "rikka.shizuku.intent.extra.BINDER");
+        }
+        if (container == null) {
+            container = getBinderContainer(extras, "moe.shizuku.privileged.api.intent.extra.BINDER");
+        }
+        return container;
+    }
+
+    private static BinderContainer getBinderContainer(Intent intent) {
+        try {
+            return toBinderContainer(intent.getParcelableExtra(EXTRA_BINDER));
+        } catch (Throwable tr) {
+            Log.w(TAG, "Failed to read binder from intent extra", tr);
+            return null;
         }
     }
 
