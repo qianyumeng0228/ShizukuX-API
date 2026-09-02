@@ -1018,7 +1018,7 @@ public class Shizuku {
     }
 
     /**
-     * Check if Shizuku+ Enhanced API is enabled on the server.
+     * Check if ShizukuX Enhanced API is enabled on the server.
      *
      * @return True if enabled
      */
@@ -1034,7 +1034,7 @@ public class Shizuku {
                 return reply.readInt() != 0;
             }
         } catch (RemoteException e) {
-            // Not a Shizuku+ server or transaction failed
+            // Not a ShizukuX server or transaction failed
         } finally {
             reply.recycle();
             data.recycle();
@@ -1059,7 +1059,7 @@ public class Shizuku {
                     return reply.readStrongBinder();
                 }
             } catch (RemoteException e) {
-                // Not a Shizuku+ server or transaction failed
+                // Not a ShizukuX server or transaction failed
             } finally {
                 reply.recycle();
                 data.recycle();

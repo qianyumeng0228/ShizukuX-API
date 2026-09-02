@@ -169,7 +169,7 @@ public abstract class Service<
         if (checkPlusFeatureEnabled("binder_firewall")) {
             if (isBinderCallBlocked(callingUid, descriptor, targetCode)) {
                 LOGGER.w("Firewall: Blocked transaction %s code %d from uid %d", descriptor, targetCode, callingUid);
-                throw new SecurityException("Binder Firewall: Transaction blocked by Shizuku+ policy");
+                throw new SecurityException("Binder Firewall: Transaction blocked by ShizukuX policy");
             }
         }
 

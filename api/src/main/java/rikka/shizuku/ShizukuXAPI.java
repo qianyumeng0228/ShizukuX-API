@@ -27,15 +27,15 @@ import af.shizuku.server.IVirtualMachineManager;
 import af.shizuku.server.IWindowManagerPlus;
 
 /**
- * Shizuku+API — extended features available when the connected Shizuku server
- * is a Shizuku+ build with enhanced API enabled.
+ * ShizukuXAPI — extended features available when the connected Shizuku server
+ * is a ShizukuX build with enhanced API enabled.
  *
  * <p>All methods that touch a remote binder are safe to call from any thread.
  * They return {@code null}/{@code false}/empty-list when Shizuku is not
  * connected, the enhanced API is not supported, or a transient IPC error occurs.
  */
-public class ShizukuPlusAPI {
-    private static final String TAG = "Shizuku+API";
+public class ShizukuXAPI {
+    private static final String TAG = "ShizukuXAPI";
 
     /** Timeout for blocking shell-command reads, in seconds. */
     private static final long SHELL_TIMEOUT_SECONDS = 30;
@@ -45,7 +45,7 @@ public class ShizukuPlusAPI {
     // -------------------------------------------------------------------------
 
     /**
-     * Returns {@code true} if the connected server is a Shizuku+ build that
+     * Returns {@code true} if the connected server is a ShizukuX build that
      * has the enhanced API enabled. Safe to call from any thread.
      */
     public static boolean isEnhancedApiSupported() {

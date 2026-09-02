@@ -235,7 +235,7 @@ public class ShizukuProvider extends ContentProvider {
     // Shizuku server delivers the binder as different BinderContainer flavors depending on whether
     // this package is the active manager app (af.shizuku.api.BinderContainer) or a plain client
     // (rikka.shizuku.BinderContainer / moe.shizuku.api.BinderContainer). When both the release and
-    // debug flavors of Shizuku+ are installed, the server picks the release build as "the manager"
+    // debug flavors of ShizukuX are installed, the server picks the release build as "the manager"
     // and routes the debug build through the plain-client path, so a strict single-flavor cast here
     // would throw ClassCastException and the app would never see the binder. Accept any flavor.
     private static BinderContainer toBinderContainer(Parcelable p) {

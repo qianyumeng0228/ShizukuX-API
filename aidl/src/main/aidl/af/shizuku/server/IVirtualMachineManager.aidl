@@ -29,7 +29,7 @@ interface IVirtualMachineManager {
     String getStatus(String name);
 
     /**
-     * List all Virtual Machines managed by Shizuku+.
+     * List all Virtual Machines managed by ShizukuX.
      */
     List<String> list();
 }

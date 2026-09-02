@@ -6,7 +6,7 @@
 // mismatch and the app's requestPermission callback never fires (#325-adjacent).
 //
 // Codes 1/2 match upstream Shizuku exactly. dispatchLog (3) and dispatchSentryEvent (4) are
-// ShizukuPlus additions only ever called on the MANAGER's client (which uses this same AIDL),
+// ShizukuX additions only ever called on the MANAGER's client (which uses this same AIDL),
 // never on third-party clients, so they don't collide with anything a rikka client expects.
 package moe.shizuku.server;
 

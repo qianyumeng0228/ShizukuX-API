@@ -1,19 +1,19 @@
-# Shizuku+-API
+# ShizukuX-API
 
-Shizuku+-API is an enhanced, developer-friendly version of the Shizuku API. It provides a modernized interface for interacting with [Shizuku+](https://github.com/thejaustin/ShizukuPlus), while maintaining full backward compatibility with standard Shizuku and Sui servers.
+ShizukuX-API is an enhanced, developer-friendly version of the Shizuku API. It provides a modernized interface for interacting with [ShizukuX](https://github.com/qianyumeng0228/ShizukuX), while maintaining full backward compatibility with standard Shizuku and Sui servers.
 
 ## ✨ Key Features (Plus Upgrades)
 
-Shizuku+-API eliminates the boilerplate associated with standard Shizuku development:
+ShizukuX-API eliminates the boilerplate associated with standard Shizuku development:
 
 *   **Synchronous Shell Execution**: No more managing `InputStream`, `ErrorStream`, and threads. Get a clean `CommandResult` in one line.
 *   **High-Level Utilities**: Dedicated classes for managing **System Settings**, **Package Installation**, and **System Overlays (RRO)**.
 *   **Dhizuku (Device Owner) Integration**: Directly access the `DevicePolicyManager` binder without requiring the user to perform a factory reset or complex ADB setup.
-*   **Universal Compatibility**: Automatically detects if the server is Shizuku+ or standard Shizuku. Uses direct AIDL stubs for Plus servers; falls back to `Shizuku.newProcess` shell execution on standard Shizuku.
+*   **Universal Compatibility**: Automatically detects if the server is ShizukuX or standard Shizuku. Uses direct AIDL stubs for Plus servers; falls back to `Shizuku.newProcess` shell execution on standard Shizuku.
 
 ## 🚀 Plus API Features
 
-Shizuku+-API includes exclusive interfaces for advanced system interaction:
+ShizukuX-API includes exclusive interfaces for advanced system interaction:
 
 ### 1. AVF (Virtual Machine) Manager
 Manage isolated Linux environments via the Android Virtualization Framework.
@@ -23,7 +23,7 @@ Manage isolated Linux environments via the Android Virtualization Framework.
 ### 2. Privileged Storage Proxy
 Bypass SAF (Storage Access Framework) limitations for verified power-user tools.
 *   **Capabilities**: Obtain `FileDescriptors` for restricted paths like `/data/data/`.
-*   **Security**: Requires explicit biometric/user confirmation via the Shizuku+ manager.
+*   **Security**: Requires explicit biometric/user confirmation via the ShizukuX manager.
 
 ### 3. Intelligence Bridge (AI Core Plus)
 Access privileged system intelligence and hardware accelerators.
@@ -51,7 +51,7 @@ Advanced memory and process management.
 
 ### 8. Continuity Bridge
 Seamless multi-device state synchronization.
-*   **Capabilities**: Sync app states and privileged task handoffs between devices running Shizuku+.
+*   **Capabilities**: Sync app states and privileged task handoffs between devices running ShizukuX.
 
 ## 🚀 Getting Started
 
@@ -65,7 +65,7 @@ repositories {
 }
 
 dependencies {
-    implementation 'com.github.thejaustin:Shizuku+-API:13.2.0-plus'
+    implementation 'com.github.qianyumeng0228:ShizukuX-API:13.2.0-plus'
 }
 ```
 
@@ -75,48 +75,48 @@ dependencies {
 Execute any command and get the output synchronously (call off the main thread):
 ```java
 // String shorthand
-ShizukuPlusAPI.CommandResult result = ShizukuPlusAPI.executeShell("whoami");
+ShizukuXAPI.CommandResult result = ShizukuXAPI.executeShell("whoami");
 if (result.isSuccess()) {
     Log.d("API", "Output: " + result.output);
 }
 
 // Explicit arg array (preferred — avoids shell-quoting issues)
-ShizukuPlusAPI.CommandResult result2 = ShizukuPlusAPI.executeShell(
+ShizukuXAPI.CommandResult result2 = ShizukuXAPI.executeShell(
     new String[]{"pm", "list", "packages", "-3"});
 ```
 
 ### 2. System Settings
 Easily read or modify `system`, `secure`, and `global` settings:
 ```java
-ShizukuPlusAPI.Settings.putSecure("now_bar_enabled", "1");
-String scale = ShizukuPlusAPI.Settings.getSystem("font_scale");
+ShizukuXAPI.Settings.putSecure("now_bar_enabled", "1");
+String scale = ShizukuXAPI.Settings.getSystem("font_scale");
 ```
 
 ### 3. Advanced Window Control
 Force an app into free-form mode even if restricted by its manifest:
 ```java
-ShizukuPlusAPI.WindowManager.forceResizable("com.example.app", true);
+ShizukuXAPI.WindowManager.forceResizable("com.example.app", true);
 ```
 
 ### 4. Storage Access
 Access a file in an app's private data directory (requires user confirmation):
 ```java
-ParcelFileDescriptor pfd = ShizukuPlusAPI.StorageProxy.openFile(
+ParcelFileDescriptor pfd = ShizukuXAPI.StorageProxy.openFile(
     "/data/data/com.example.app/files/config.json",
     ParcelFileDescriptor.MODE_READ_ONLY);
 ```
 
 ## 🔄 Compatibility
 
-Shizuku+-API dispatches through the AIDL stub (`IShizukuService`) when a Plus
+ShizukuX-API dispatches through the AIDL stub (`IShizukuService`) when a Plus
 server is detected, giving direct typed access to all Plus interfaces with no
 magic transaction codes. On a standard Shizuku server the shell helpers fall
 back to `Shizuku.newProcess`; Plus-only AIDL features return `null`/`false`.
 
-**Result**: Your app works everywhere, but gets richer capabilities on Shizuku+.
+**Result**: Your app works everywhere, but gets richer capabilities on ShizukuX.
 
 ## 📱 Documentation & Original API
-For the core logic, `UserService` documentation, and AIDL definitions, please refer to the original [Shizuku-API](https://github.com/RikkaApps/Shizuku-API) repository. Shizuku+-API includes all original `rikka.shizuku.Shizuku` methods.
+For the core logic, `UserService` documentation, and AIDL definitions, please refer to the original [Shizuku-API](https://github.com/RikkaApps/Shizuku-API) repository. ShizukuX-API includes all original `rikka.shizuku.Shizuku` methods.
 
 ## 📃 License
 [MIT License](LICENSE)

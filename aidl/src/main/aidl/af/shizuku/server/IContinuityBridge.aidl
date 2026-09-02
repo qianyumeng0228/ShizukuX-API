@@ -4,7 +4,7 @@ import android.os.Bundle;
 
 interface IContinuityBridge {
     /**
-     * Sync a piece of data to another device running Shizuku+.
+     * Sync a piece of data to another device running ShizukuX.
      */
     boolean syncData(String targetDeviceId, String key, in Bundle data);
 
@@ -14,7 +14,7 @@ interface IContinuityBridge {
     void registerContinuityListener(IBinder listener);
 
     /**
-     * List nearby devices running Shizuku+ that are eligible for handoff.
+     * List nearby devices running ShizukuX that are eligible for handoff.
      */
     List<String> listEligibleDevices();
 

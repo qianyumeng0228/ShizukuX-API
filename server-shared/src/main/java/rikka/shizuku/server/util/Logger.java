@@ -7,9 +7,9 @@ import java.util.logging.FileHandler;
 import java.util.logging.SimpleFormatter;
 
 /**
- * Shizuku+ Server-side Logger.
+ * ShizukuX Server-side Logger.
  * This class handles logging for the privileged server process.
- * It logs to Logcat with a consistent 'ShizukuPlus' prefix for easy filtering.
+ * It logs to Logcat with a consistent 'ShizukuX' prefix for easy filtering.
  */
 public class Logger {
 
@@ -27,12 +27,12 @@ public class Logger {
     private final java.util.logging.Logger fileLogger;
 
     public Logger(String tag) {
-        this.tag = "ShizukuPlus:" + tag;
+        this.tag = "ShizukuX:" + tag;
         this.fileLogger = null;
     }
 
     public Logger(String tag, String logFilePath) {
-        this.tag = "ShizukuPlus:" + tag;
+        this.tag = "ShizukuX:" + tag;
         java.util.logging.Logger logger = null;
         try {
             logger = java.util.logging.Logger.getLogger(this.tag);
