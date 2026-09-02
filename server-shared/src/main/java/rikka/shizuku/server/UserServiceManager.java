@@ -272,7 +272,7 @@ public abstract class UserServiceManager {
             // already removed (app unbound / process killed), or the server restarted and lost its
             // in-memory records while a previously-started process kept running and re-attached.
             // This is an expected condition, not a caller error — throwing here only marshals the
-            // exception back across the binder and surfaces as a client crash (SHIZUKUPLUS-79).
+            // exception back across the binder and surfaces as a client crash (SHIZUKUX-79).
             // Log and drop the orphaned attach instead.
             LOGGER.w("attachUserService: unable to find token %s (stale or duplicate attach; ignoring)", token);
             return;

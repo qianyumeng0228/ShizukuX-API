@@ -29,7 +29,7 @@ public class ShizukuRemoteProcess extends Process implements Parcelable {
     ShizukuRemoteProcess(IRemoteProcess remote) {
         // 当特权进程无法启动时（例如命令派生失败，或过期服务器拒绝了调用），
         // 服务会返回 null。这里抛出清晰、可捕获的异常，而不是在 remote.asBinder()
-        // 上触发 NPE（SHIZUKUPLUS-85）。
+        // 上触发 NPE（SHIZUKUX-85）。
         if (remote == null) {
             throw new IllegalStateException(
                     "Shizuku returned a null remote process for newProcess() — the privileged service could not start the command");
