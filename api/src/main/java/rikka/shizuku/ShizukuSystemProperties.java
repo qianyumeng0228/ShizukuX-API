@@ -3,7 +3,7 @@ package rikka.shizuku;
 import android.os.RemoteException;
 
 /**
- * @since added from version 9
+ * @since 自版本 9 添加
  */
 public class ShizukuSystemProperties {
 

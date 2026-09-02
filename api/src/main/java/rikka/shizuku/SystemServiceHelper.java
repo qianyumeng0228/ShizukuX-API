@@ -33,16 +33,16 @@ public class SystemServiceHelper {
     }
 
     /**
-     * Returns a reference to a service with the given name.
+     * 返回具有给定名称的服务引用。
      *
-     * @param name the name of the service to get such as "package" for android.content.pm.IPackageManager
-     * @return a reference to the service, or <code>null</code> if the service doesn't exist
+     * @param name 要获取的服务名称，例如 android.content.pm.IPackageManager 对应的 "package"
+     * @return 服务的引用；若服务不存在则返回 <code>null</code>
      */
     public static IBinder getSystemService(@NonNull String name) {
         IBinder binder = SYSTEM_SERVICE_CACHE.get(name);
-        // A cached binder can outlive the service it points to (the owning process restarted and
-        // ServiceManager now hands out a new instance, or the process died outright) — a dead
-        // entry would otherwise be returned forever since map lookups never re-invoke getService.
+        // 缓存的 binder 可能比其指向的服务存活更久（宿主进程重启后 ServiceManager
+        // 会下发新实例，或进程直接死亡）——否则由于 map 查找不会重新调用 getService，
+        // 一个已失效的条目将被永久返回。
         if (binder != null && !binder.isBinderAlive()) {
             SYSTEM_SERVICE_CACHE.remove(name);
             binder = null;
@@ -61,12 +61,12 @@ public class SystemServiceHelper {
     }
 
     /**
-     * Returns transaction code from given class and method name.
+     * 从给定的类和方法名返回事务代码（transaction code）。
      *
-     * @param className  class name such as "android.content.pm.IPackageManager$Stub"
-     * @param methodName method name such as "getInstalledPackages"
-     * @return transaction code, or <code>null</code> if the class or the method doesn't exist
-     * @deprecated Use {@link ShizukuBinderWrapper} instead
+     * @param className  类名，例如 "android.content.pm.IPackageManager$Stub"
+     * @param methodName 方法名，例如 "getInstalledPackages"
+     * @return 事务代码；若类或方法不存在则返回 <code>null</code>
+     * @deprecated 请改用 {@link ShizukuBinderWrapper}
      */
     @Deprecated
     public static Integer getTransactionCode(@NonNull String className, @NonNull String methodName) {
@@ -110,14 +110,14 @@ public class SystemServiceHelper {
     }
 
     /**
-     * Obtain a new data parcel for {@link Shizuku#transactRemote(Parcel, Parcel, int)}.
+     * 为 {@link Shizuku#transactRemote(Parcel, Parcel, int)} 获取一个新的数据 parcel。
      *
-     * @param serviceName   system service name
-     * @param interfaceName class name for reflection
-     * @param methodName    method name for reflection
-     * @return data parcel
-     * @throws NullPointerException can't get system service or transaction code
-     * @deprecated Use {@link ShizukuBinderWrapper} instead
+     * @param serviceName   系统服务名称
+     * @param interfaceName 用于反射的接口名
+     * @param methodName    用于反射的方法名
+     * @return 数据 parcel
+     * @throws NullPointerException 无法获取系统服务或事务代码
+     * @deprecated 请改用 {@link ShizukuBinderWrapper}
      */
     @Deprecated
     public static Parcel obtainParcel(@NonNull String serviceName, @NonNull String interfaceName, @NonNull String methodName) {
@@ -125,15 +125,15 @@ public class SystemServiceHelper {
     }
 
     /**
-     * Obtain a new data parcel for {@link Shizuku#transactRemote(Parcel, Parcel, int)}.
+     * 为 {@link Shizuku#transactRemote(Parcel, Parcel, int)} 获取一个新的数据 parcel。
      *
-     * @param serviceName   system service name
-     * @param interfaceName interface name
-     * @param className     class name for reflection
-     * @param methodName    method name for reflection
-     * @return data parcel
-     * @throws NullPointerException can't get system service or transaction code
-     * @deprecated Use {@link ShizukuBinderWrapper} instead
+     * @param serviceName   系统服务名称
+     * @param interfaceName 接口名
+     * @param className     用于反射的类名
+     * @param methodName    用于反射的方法名
+     * @return 数据 parcel
+     * @throws NullPointerException 无法获取系统服务或事务代码
+     * @deprecated 请改用 {@link ShizukuBinderWrapper}
      */
     @Deprecated
     public static Parcel obtainParcel(@NonNull String serviceName, @NonNull String interfaceName, @NonNull String className, @NonNull String methodName) {

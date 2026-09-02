@@ -53,8 +53,7 @@ class ShizukuServiceConnection extends IShizukuServiceConnection.Stub {
                 }
         );
 
-        // Hold the binder, or linkToDeath will not work after reference to
-        // the binder is dropped
+        // 持有 binder，否则在释放对 binder 的引用后 linkToDeath 将无法工作
         this.binder = binder;
 
         try {

@@ -27,34 +27,34 @@ import af.shizuku.server.IVirtualMachineManager;
 import af.shizuku.server.IWindowManagerPlus;
 
 /**
- * ShizukuXAPI — extended features available when the connected Shizuku server
- * is a ShizukuX build with enhanced API enabled.
+ * ShizukuXAPI —— 当所连接的 Shizuku 服务器为已启用增强 API 的 ShizukuX 构建时，
+ * 可用的扩展功能。
  *
- * <p>All methods that touch a remote binder are safe to call from any thread.
- * They return {@code null}/{@code false}/empty-list when Shizuku is not
- * connected, the enhanced API is not supported, or a transient IPC error occurs.
+ * <p>所有涉及远程 binder 的方法都可从任意线程安全调用。
+ * 当 Shizuku 未连接、增强 API 不受支持或发生瞬时 IPC 错误时，
+ * 它们返回 {@code null}/{@code false}/空列表。
  */
 public class ShizukuXAPI {
     private static final String TAG = "ShizukuXAPI";
 
-    /** Timeout for blocking shell-command reads, in seconds. */
+    /** 阻塞式 Shell 命令读取的超时时间（秒）。 */
     private static final long SHELL_TIMEOUT_SECONDS = 30;
 
     // -------------------------------------------------------------------------
-    // Core connection helpers
+    // 核心连接辅助方法
     // -------------------------------------------------------------------------
 
     /**
-     * Returns {@code true} if the connected server is a ShizukuX build that
-     * has the enhanced API enabled. Safe to call from any thread.
+     * 若所连接的服务器是已启用增强 API 的 ShizukuX 构建，则返回 {@code true}。
+     * 可从任意线程安全调用。
      */
     public static boolean isEnhancedApiSupported() {
         return Shizuku.isCustomApiEnabled();
     }
 
     /**
-     * Returns a live {@link IShizukuService} proxy, or {@code null} if
-     * Shizuku is not connected or the binder has died.
+     * 返回一个实时的 {@link IShizukuService} 代理；若 Shizuku 未连接
+     * 或 binder 已失效，则返回 {@code null}。
      */
     @Nullable
     private static IShizukuService getShizukuService() {
@@ -69,8 +69,8 @@ public class ShizukuXAPI {
     }
 
     /**
-     * Returns a live {@link IShizukuService} proxy only when the enhanced API
-     * is confirmed active, or {@code null} otherwise.
+     * 仅当确认增强 API 已激活时才返回实时的 {@link IShizukuService} 代理，
+     * 否则返回 {@code null}。
      */
     @Nullable
     private static IShizukuService requirePlusService() {
@@ -82,7 +82,7 @@ public class ShizukuXAPI {
     // Shell
     // -------------------------------------------------------------------------
 
-    /** Result of a synchronous shell command execution. */
+    /** 同步 Shell 命令执行的结果。 */
     public static class CommandResult {
         public final int exitCode;
         @NonNull public final String output;
@@ -98,11 +98,10 @@ public class ShizukuXAPI {
     }
 
     /**
-     * Execute a shell command string (via {@code sh -c}) through Shizuku and
-     * return the result synchronously. Blocks the calling thread for up to
-     * {@link #SHELL_TIMEOUT_SECONDS} seconds before returning an error result.
+     * 通过 Shizuku 执行 Shell 命令字符串（经由 {@code sh -c}）并同步返回结果。
+     * 在返回错误结果前，最多阻塞调用线程 {@link #SHELL_TIMEOUT_SECONDS} 秒。
      *
-     * <p>Do not call on the main thread.
+     * <p>请勿在主线程调用。
      */
     @NonNull
     public static CommandResult executeShell(@NonNull String command) {
@@ -110,15 +109,15 @@ public class ShizukuXAPI {
     }
 
     /**
-     * Execute an argument array through Shizuku and return the result
-     * synchronously. Blocks up to {@link #SHELL_TIMEOUT_SECONDS} seconds.
+     * 通过 Shizuku 执行参数数组并同步返回结果。
+     * 最多阻塞 {@link #SHELL_TIMEOUT_SECONDS} 秒。
      *
-     * <p>Do not call on the main thread.
+     * <p>请勿在主线程调用。
      */
     @NonNull
     public static CommandResult executeShell(@NonNull String[] cmd) {
         try {
-            // newProcess is the correct public API surface for Shizuku shell execution.
+            // newProcess 是 Shizuku Shell 执行的正确公共 API 入口。
             ShizukuRemoteProcess process = Shizuku.newProcess(cmd, null, null);
             if (process == null) {
                 return new CommandResult(-1, "", "Process creation returned null");
@@ -127,8 +126,8 @@ public class ShizukuXAPI {
             final StringBuilder output = new StringBuilder();
             final StringBuilder error  = new StringBuilder();
 
-            // Drain stderr on a parallel thread: if stdout fills the OS pipe
-            // buffer while we block reading it, stderr must drain or we deadlock.
+            // 在并行线程中排空 stderr：若我们阻塞读取 stdout 时 stdout 填满 OS 管道
+            // 缓冲区，则必须同时排空 stderr，否则会死锁。
             Thread stderrThread = new Thread(() -> {
                 try (BufferedReader r = new BufferedReader(
                         new InputStreamReader(process.getErrorStream(), StandardCharsets.UTF_8))) {
@@ -162,10 +161,10 @@ public class ShizukuXAPI {
     }
 
     // -------------------------------------------------------------------------
-    // Settings
+    // 系统设置
     // -------------------------------------------------------------------------
 
-    /** Wrappers for Android System settings (system / secure / global). */
+    /** Android 系统设置（system / secure / global）的封装。 */
     public static class Settings {
 
         public static boolean putSystem(@NonNull String key, @NonNull String value) {
@@ -197,10 +196,10 @@ public class ShizukuXAPI {
     }
 
     // -------------------------------------------------------------------------
-    // Package Manager
+    // 包管理器
     // -------------------------------------------------------------------------
 
-    /** Wrappers for package-manager operations via Shizuku. */
+    /** 通过 Shizuku 进行的包管理器操作封装。 */
     public static class PackageManager {
 
         public static boolean installPackage(@NonNull String apkFilePath) {
@@ -217,10 +216,10 @@ public class ShizukuXAPI {
     }
 
     // -------------------------------------------------------------------------
-    // OverlayManager — requires enhanced API
+    // OverlayManager —— 需要增强 API
     // -------------------------------------------------------------------------
 
-    /** Runtime resource overlay (RRO) management via the Plus AIDL. */
+    /** 通过 Plus AIDL 进行运行时资源叠加层（RRO）管理。 */
     public static class OverlayManager {
 
         @Nullable
@@ -281,10 +280,10 @@ public class ShizukuXAPI {
     }
 
     // -------------------------------------------------------------------------
-    // ActivityManager — requires enhanced API
+    // ActivityManager —— 需要增强 API
     // -------------------------------------------------------------------------
 
-    /** Advanced Activity Manager operations. */
+    /** 高级 Activity Manager 操作。 */
     public static class ActivityManager {
 
         @Nullable
@@ -320,10 +319,10 @@ public class ShizukuXAPI {
     }
 
     // -------------------------------------------------------------------------
-    // WindowManager — requires enhanced API
+    // WindowManager —— 需要增强 API
     // -------------------------------------------------------------------------
 
-    /** Window Manager and desktop-mode features. */
+    /** 窗口管理器与桌面模式功能。 */
     public static class WindowManager {
 
         @Nullable
@@ -350,10 +349,10 @@ public class ShizukuXAPI {
     }
 
     // -------------------------------------------------------------------------
-    // NetworkGovernor — requires enhanced API
+    // NetworkGovernor —— 需要增强 API
     // -------------------------------------------------------------------------
 
-    /** Privileged network and DNS management. */
+    /** 特权网络与 DNS 管理。 */
     public static class NetworkGovernor {
 
         @Nullable
@@ -387,10 +386,10 @@ public class ShizukuXAPI {
     }
 
     // -------------------------------------------------------------------------
-    // AICore — requires enhanced API
+    // AICore —— 需要增强 API
     // -------------------------------------------------------------------------
 
-    /** AI and screen-aware features (pixel inspection, input simulation, etc.). */
+    /** AI 与屏幕感知功能（像素检测、输入模拟等）。 */
     public static class AICore {
 
         @Nullable
@@ -463,10 +462,10 @@ public class ShizukuXAPI {
     }
 
     // -------------------------------------------------------------------------
-    // Continuity — requires enhanced API
+    // Continuity —— 需要增强 API
     // -------------------------------------------------------------------------
 
-    /** Multi-device privileged continuity features. */
+    /** 多设备特权连续性功能。 */
     public static class Continuity {
 
         @Nullable
@@ -487,10 +486,10 @@ public class ShizukuXAPI {
     }
 
     // -------------------------------------------------------------------------
-    // VirtualMachine — requires enhanced API
+    // VirtualMachine —— 需要增强 API
     // -------------------------------------------------------------------------
 
-    /** Android Virtualization Framework (AVF) / Microdroid VM management. */
+    /** Android 虚拟化框架（AVF）/ Microdroid 虚拟机管理。 */
     public static class VirtualMachine {
 
         @Nullable
@@ -547,10 +546,10 @@ public class ShizukuXAPI {
     }
 
     // -------------------------------------------------------------------------
-    // StorageProxy — requires enhanced API
+    // StorageProxy —— 需要增强 API
     // -------------------------------------------------------------------------
 
-    /** Privileged file-system operations via the Plus storage bridge. */
+    /** 通过 Plus 存储桥进行特权文件系统操作。 */
     public static class StorageProxy {
 
         @Nullable
@@ -601,10 +600,10 @@ public class ShizukuXAPI {
     }
 
     // -------------------------------------------------------------------------
-    // Dhizuku — Device Owner compatibility
+    // Dhizuku —— 设备所有者兼容
     // -------------------------------------------------------------------------
 
-    /** Dhizuku (Device Owner) compatibility layer exposed by the Plus server. */
+    /** Plus 服务器暴露的 Dhizuku（设备所有者）兼容层。 */
     public static class Dhizuku {
 
         @Nullable

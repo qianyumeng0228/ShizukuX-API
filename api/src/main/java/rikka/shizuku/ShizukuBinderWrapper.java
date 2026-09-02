@@ -12,9 +12,9 @@ import java.io.FileDescriptor;
 import java.util.Objects;
 
 /**
- * Binder wrapper to use ShizukuService#transactRemote more conveniently.
+ * Binder 包装器，用于更方便地使用 ShizukuService#transactRemote。
  * <p>
- * example:
+ * 示例：
  * <br><code>IPackageManager pm = IPackageManager.Stub.asInterface(new ShizukuBinder(SystemServiceHelper.getSystemService("package")));
  * <br>pm.getInstalledPackages(0, 0);</code>
  */

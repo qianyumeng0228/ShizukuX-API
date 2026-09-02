@@ -5,7 +5,7 @@
     <application
         android:name=".DemoApplication"
         android:allowBackup="false"
-        android:label="Demo for Shizuku &amp; Sui"
+        android:label="@string/app_name"
         android:supportsRtl="true"
         android:theme="@android:style/Theme.DeviceDefault"
         tools:ignore="GoogleAppIndexingWarning">

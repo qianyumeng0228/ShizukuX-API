@@ -31,6 +31,7 @@ import java.util.concurrent.CountDownLatch;
 import rikka.shizuku.Shizuku;
 import rikka.shizuku.ShizukuBinderWrapper;
 import rikka.shizuku.ShizukuSystemProperties;
+import rikka.shizuku.demo.R;
 import rikka.shizuku.demo.databinding.MainActivityBinding;
 import rikka.shizuku.demo.service.UserService;
 import rikka.shizuku.demo.util.ApplicationUtils;
@@ -55,12 +56,12 @@ public class DemoActivity extends Activity {
 
     private final Shizuku.OnBinderReceivedListener BINDER_RECEIVED_LISTENER = () -> {
         if (Shizuku.isPreV11()) {
-            binding.text1.setText("Shizuku pre-v11 is not supported");
+            binding.text1.setText(getString(R.string.status_shizuku_pre_v11));
         } else {
-            binding.text1.setText("Binder received");
+            binding.text1.setText(getString(R.string.status_binder_received));
         }
     };
-    private final Shizuku.OnBinderDeadListener BINDER_DEAD_LISTENER = () -> binding.text1.setText("Binder dead");
+    private final Shizuku.OnBinderDeadListener BINDER_DEAD_LISTENER = () -> binding.text1.setText(getString(R.string.status_binder_dead));
     private final Shizuku.OnRequestPermissionResultListener REQUEST_PERMISSION_RESULT_LISTENER = this::onRequestPermissionsResult;
 
     @Override
@@ -72,9 +73,9 @@ public class DemoActivity extends Activity {
         binding = MainActivityBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
 
-        binding.text2.setText("Using " + (DemoApplication.isSui() ? "Sui" : "Shizuku or nothing is installed") + ".");
+        binding.text2.setText(DemoApplication.isSui() ? getString(R.string.status_using_sui) : getString(R.string.status_using_default));
 
-        binding.text1.setText("Waiting for binder");
+        binding.text1.setText(getString(R.string.status_waiting_binder));
         binding.button1.setOnClickListener((v) -> {
             if (checkPermission(REQUEST_CODE_BUTTON1)) getUsers();
         });
@@ -144,7 +145,7 @@ public class DemoActivity extends Activity {
                 }
             }
         } else {
-            binding.text1.setText("User denied permission");
+            binding.text1.setText(getString(R.string.status_permission_denied));
         }
     }
 
@@ -177,7 +178,7 @@ public class DemoActivity extends Activity {
             if (Shizuku.checkSelfPermission() == PERMISSION_GRANTED) {
                 return true;
             } else if (Shizuku.shouldShowRequestPermissionRationale()) {
-                binding.text3.setText("User denied permission (shouldShowRequestPermissionRationale=true)");
+                binding.text3.setText(getString(R.string.status_permission_denied_rationale));
                 return false;
             } else {
                 Shizuku.requestPermission(code);
@@ -232,7 +233,7 @@ public class DemoActivity extends Activity {
             userId = isRoot ? Process.myUserHandle().hashCode() : 0;
             packageInstaller = PackageInstallerUtils.createPackageInstaller(_packageInstaller, installerPackageName, installerAttributionTag, userId);
             int sessionId;
-            res.append("createSession: ");
+            res.append(getString(R.string.status_create_session));
 
             PackageInstaller.SessionParams params = new PackageInstaller.SessionParams(PackageInstaller.SessionParams.MODE_FULL_INSTALL);
             int installFlags = PackageInstallerUtils.getInstallFlags(params);
@@ -242,7 +243,7 @@ public class DemoActivity extends Activity {
             sessionId = packageInstaller.createSession(params);
             res.append(sessionId).append('\n');
 
-            res.append('\n').append("write: ");
+            res.append('\n').append(getString(R.string.status_write));
 
             IPackageInstallerSession _session = IPackageInstallerSession.Stub.asInterface(new ShizukuBinderWrapper(_packageInstaller.openSession(sessionId).asBinder()));
             session = PackageInstallerUtils.createSession(_session);
@@ -280,7 +281,7 @@ public class DemoActivity extends Activity {
                 Thread.sleep(1000);
             }
 
-            res.append('\n').append("commit: ");
+            res.append('\n').append(getString(R.string.status_commit));
 
             Intent[] results = new Intent[]{null};
             CountDownLatch countDownLatch = new CountDownLatch(1);
@@ -297,7 +298,7 @@ public class DemoActivity extends Activity {
             Intent result = results[0];
             int status = result.getIntExtra(PackageInstaller.EXTRA_STATUS, PackageInstaller.STATUS_FAILURE);
             String message = result.getStringExtra(PackageInstaller.EXTRA_STATUS_MESSAGE);
-            res.append('\n').append("status: ").append(status).append(" (").append(message).append(")");
+            res.append('\n').append(getString(R.string.status_result_status)).append(status).append(" (").append(message).append(")");
 
         } catch (Throwable tr) {
             tr.printStackTrace();
@@ -331,12 +332,12 @@ public class DemoActivity extends Activity {
             userId = isRoot ? android.os.Process.myUserHandle().hashCode() : 0;
 
             List<PackageInstaller.SessionInfo> sessions;
-            res.append("abandonMySessions: ");
+            res.append(getString(R.string.status_abandon_sessions));
             sessions = packageInstaller.getMySessions(installer, userId).getList();
             for (PackageInstaller.SessionInfo session : sessions) {
                 res.append(session.getSessionId());
                 packageInstaller.abandonSession(session.getSessionId());
-                res.append(" (abandoned)\n");
+                res.append(getString(R.string.status_abandoned)).append('\n');
             }
         } catch (Throwable tr) {
             tr.printStackTrace();
@@ -350,7 +351,7 @@ public class DemoActivity extends Activity {
         StringBuilder res = new StringBuilder();
         try {
             if (Shizuku.getVersion() < 9) {
-                res.append("requires Shizuku API 9");
+                res.append(getString(R.string.status_requires_api_9));
             } else {
                 res.append("ro.build.fingerprint=").append(ShizukuSystemProperties.get("ro.build.fingerprint")).append('\n');
                 res.append("ro.build.version.sdk=").append(ShizukuSystemProperties.getInt("ro.build.version.sdk", -1)).append('\n');
@@ -366,7 +367,7 @@ public class DemoActivity extends Activity {
         @Override
         public void onServiceConnected(ComponentName componentName, IBinder binder) {
             StringBuilder res = new StringBuilder();
-            res.append("onServiceConnected: ").append(componentName.getClassName()).append('\n');
+            res.append(getString(R.string.status_on_service_connected, componentName.getClassName())).append('\n');
             if (binder != null && binder.pingBinder()) {
                 IUserService service = IUserService.Stub.asInterface(binder);
                 try {
@@ -376,14 +377,14 @@ public class DemoActivity extends Activity {
                     res.append(Log.getStackTraceString(e));
                 }
             } else {
-                res.append("invalid binder for ").append(componentName).append(" received");
+                res.append(getString(R.string.status_invalid_binder, componentName));
             }
             binding.text3.setText(res.toString().trim());
         }
 
         @Override
         public void onServiceDisconnected(ComponentName componentName) {
-            binding.text3.setText("onServiceDisconnected: " + '\n' + componentName.getClassName());
+            binding.text3.setText(getString(R.string.status_on_service_disconnected, componentName.getClassName()));
         }
     };
 
@@ -398,7 +399,7 @@ public class DemoActivity extends Activity {
         StringBuilder res = new StringBuilder();
         try {
             if (Shizuku.getVersion() < 10) {
-                res.append("requires Shizuku API 10");
+                res.append(getString(R.string.status_requires_api_10));
             } else {
                 Shizuku.bindUserService(userServiceArgs, userServiceConnection);
             }
@@ -413,7 +414,7 @@ public class DemoActivity extends Activity {
         StringBuilder res = new StringBuilder();
         try {
             if (Shizuku.getVersion() < 10) {
-                res.append("requires Shizuku API 10");
+                res.append(getString(R.string.status_requires_api_10));
             } else {
                 Shizuku.unbindUserService(userServiceArgs, userServiceConnection, true);
             }
@@ -428,13 +429,13 @@ public class DemoActivity extends Activity {
         StringBuilder res = new StringBuilder();
         try {
             if (Shizuku.getVersion() < 12) {
-                res.append("requires Shizuku API 12");
+                res.append(getString(R.string.status_requires_api_12));
             } else {
                 int serviceVersion = Shizuku.peekUserService(userServiceArgs, userServiceConnection);
                 if (serviceVersion != -1) {
-                    res.append("Service is running, version ").append(serviceVersion);
+                    res.append(getString(R.string.status_service_running, serviceVersion));
                 } else {
-                    res.append("Service is not running");
+                    res.append(getString(R.string.status_service_not_running));
                 }
             }
         } catch (Throwable tr) {

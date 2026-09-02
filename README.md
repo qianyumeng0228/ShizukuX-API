@@ -1,63 +1,63 @@
 # ShizukuX-API
 
-ShizukuX-API is an enhanced, developer-friendly version of the Shizuku API. It provides a modernized interface for interacting with [ShizukuX](https://github.com/qianyumeng0228/ShizukuX), while maintaining full backward compatibility with standard Shizuku and Sui servers.
+ShizukuX-API 是 Shizuku API 的增强、开发者友好版本。它为与 [ShizukuX](https://github.com/qianyumeng0228/ShizukuX) 交互提供了现代化的接口，同时与标准 Shizuku 和 Sui 服务器保持完全向后兼容。
 
-## ✨ Key Features (Plus Upgrades)
+## ✨ 核心特性（Plus 升级）
 
-ShizukuX-API eliminates the boilerplate associated with standard Shizuku development:
+ShizukuX-API 消除了标准 Shizuku 开发中的样板代码：
 
-*   **Synchronous Shell Execution**: No more managing `InputStream`, `ErrorStream`, and threads. Get a clean `CommandResult` in one line.
-*   **High-Level Utilities**: Dedicated classes for managing **System Settings**, **Package Installation**, and **System Overlays (RRO)**.
-*   **Dhizuku (Device Owner) Integration**: Directly access the `DevicePolicyManager` binder without requiring the user to perform a factory reset or complex ADB setup.
-*   **Universal Compatibility**: Automatically detects if the server is ShizukuX or standard Shizuku. Uses direct AIDL stubs for Plus servers; falls back to `Shizuku.newProcess` shell execution on standard Shizuku.
+*   **同步 Shell 执行**：无需再手动管理 `InputStream`、`ErrorStream` 和线程。一行代码即可获得干净的 `CommandResult`。
+*   **高级工具类**：提供用于管理**系统设置**、**应用安装**和**系统叠加层（RRO）**的专用类。
+*   **Dhizuku（设备所有者）集成**：直接访问 `DevicePolicyManager` binder，无需用户恢复出厂设置或进行复杂的 ADB 配置。
+*   **通用兼容性**：自动检测服务器是 ShizukuX 还是标准 Shizuku。对 Plus 服务器使用直接 AIDL stub；在标准 Shizuku 上回退到 `Shizuku.newProcess` Shell 执行。
 
-## 🚀 Plus API Features
+## 🚀 Plus API 特性
 
-ShizukuX-API includes exclusive interfaces for advanced system interaction:
+ShizukuX-API 包含用于高级系统交互的专属接口：
 
-### 1. AVF (Virtual Machine) Manager
-Manage isolated Linux environments via the Android Virtualization Framework.
-*   **Capabilities**: Create, start, and manage Microdroid or Debian-based VMs.
-*   **Use Case**: Run hardware-accelerated Linux GUI apps or secure isolated services.
+### 1. AVF（虚拟机）管理器
+通过 Android 虚拟化框架管理隔离的 Linux 环境。
+*   **能力**：创建、启动和管理 Microdroid 或基于 Debian 的虚拟机。
+*   **用例**：运行硬件加速的 Linux 图形应用或安全的隔离服务。
 
-### 2. Privileged Storage Proxy
-Bypass SAF (Storage Access Framework) limitations for verified power-user tools.
-*   **Capabilities**: Obtain `FileDescriptors` for restricted paths like `/data/data/`.
-*   **Security**: Requires explicit biometric/user confirmation via the ShizukuX manager.
+### 2. 特权存储代理
+为经过验证的高级用户工具绕过 SAF（存储访问框架）限制。
+*   **能力**：获取 `/data/data/` 等受限路径的 `FileDescriptor`。
+*   **安全性**：需要经由 ShizukuX 管理器进行明确的生物识别/用户确认。
 
-### 3. Intelligence Bridge (AI Core Plus)
-Access privileged system intelligence and hardware accelerators.
-*   **Capabilities**: High-priority NPU scheduling and privileged screen context sampling (EyeDropper extension).
-*   **Use Case**: Advanced automation and context-aware accessibility tools.
+### 3. 智能桥（AI Core Plus）
+访问特权的系统智能与硬件加速器。
+*   **能力**：高优先级 NPU 调度与特权屏幕上下文采样（EyeDropper 扩展）。
+*   **用例**：高级自动化与上下文感知的无障碍工具。
 
-### 4. Window Manager Plus (Desktop Mode)
-Take control of the desktop windowing experience.
-*   **Capabilities**: Force free-form resizing, manage the system "Bubble Bar," and set "Always on Top" windows.
+### 4. 窗口管理器 Plus（桌面模式）
+掌控桌面窗口体验。
+*   **能力**：强制自由调整大小、管理系统“气泡栏”，并设置“始终置顶”窗口。
 
-### 5. System Theming Bridge (Overlay Manager Plus)
-Expose privileged overlay management.
-*   **Capabilities**: Enable/disable system UI overlays without root.
-*   **Use Case**: Rootless theming engines (like Hex Installer).
+### 5. 系统主题桥（Overlay Manager Plus）
+暴露特权叠加层管理。
+*   **能力**：无需 root 即可启用/禁用系统 UI 叠加层。
+*   **用例**：无 root 主题引擎（如 Hex Installer）。
 
-### 6. Network & DNS Governor
-Manage network restrictions and routing.
-*   **Capabilities**: Set system-wide Private DNS and manage iptables rules via routing/VPN.
-*   **Use Case**: Rootless ad-blockers (AdAway) and firewalls (AFWall+).
+### 6. 网络与 DNS 治理器
+管理网络限制与路由。
+*   **能力**：设置系统级私有 DNS，并通过路由/VPN 管理 iptables 规则。
+*   **用例**：无 root 广告拦截器（AdAway）和防火墙（AFWall+）。
 
-### 7. Deep Process Control (Activity Manager Plus)
-Advanced memory and process management.
-*   **Capabilities**: Deeply kill background apps and manage standby buckets.
-*   **Use Case**: Performance optimizers (Thanox, 3C Toolbox).
+### 7. 深度进程控制（Activity Manager Plus）
+高级内存与进程管理。
+*   **能力**：深度终止后台应用并管理待机分组。
+*   **用例**：性能优化工具（Thanox、3C Toolbox）。
 
-### 8. Continuity Bridge
-Seamless multi-device state synchronization.
-*   **Capabilities**: Sync app states and privileged task handoffs between devices running ShizukuX.
+### 8. 多设备连续性桥
+无缝的多设备状态同步。
+*   **能力**：在运行 ShizukuX 的设备之间同步应用状态与特权任务移交。
 
-## 🚀 Getting Started
+## 🚀 快速开始
 
-### Add dependency
+### 添加依赖
 
-Add the following to your `build.gradle`:
+将以下内容添加到您的 `build.gradle`：
 
 ```gradle
 repositories {
@@ -69,54 +69,51 @@ dependencies {
 }
 ```
 
-## 🛠️ Usage Examples
+## 🛠️ 使用示例
 
-### 1. Unified Shell
-Execute any command and get the output synchronously (call off the main thread):
+### 1. 统一 Shell
+同步执行任意命令并获取输出（请在主线程外调用）：
 ```java
-// String shorthand
+// 字符串简写
 ShizukuXAPI.CommandResult result = ShizukuXAPI.executeShell("whoami");
 if (result.isSuccess()) {
-    Log.d("API", "Output: " + result.output);
+    Log.d("API", "输出: " + result.output);
 }
 
-// Explicit arg array (preferred — avoids shell-quoting issues)
+// 显式参数数组（推荐——可避免 Shell 引号转义问题）
 ShizukuXAPI.CommandResult result2 = ShizukuXAPI.executeShell(
     new String[]{"pm", "list", "packages", "-3"});
 ```
 
-### 2. System Settings
-Easily read or modify `system`, `secure`, and `global` settings:
+### 2. 系统设置
+轻松读取或修改 `system`、`secure` 和 `global` 设置：
 ```java
 ShizukuXAPI.Settings.putSecure("now_bar_enabled", "1");
 String scale = ShizukuXAPI.Settings.getSystem("font_scale");
 ```
 
-### 3. Advanced Window Control
-Force an app into free-form mode even if restricted by its manifest:
+### 3. 高级窗口控制
+即使应用清单中受限，也能强制其进入自由窗口模式：
 ```java
 ShizukuXAPI.WindowManager.forceResizable("com.example.app", true);
 ```
 
-### 4. Storage Access
-Access a file in an app's private data directory (requires user confirmation):
+### 4. 存储访问
+访问应用私有数据目录中的文件（需要用户确认）：
 ```java
 ParcelFileDescriptor pfd = ShizukuXAPI.StorageProxy.openFile(
     "/data/data/com.example.app/files/config.json",
     ParcelFileDescriptor.MODE_READ_ONLY);
 ```
 
-## 🔄 Compatibility
+## 🔄 兼容性
 
-ShizukuX-API dispatches through the AIDL stub (`IShizukuService`) when a Plus
-server is detected, giving direct typed access to all Plus interfaces with no
-magic transaction codes. On a standard Shizuku server the shell helpers fall
-back to `Shizuku.newProcess`; Plus-only AIDL features return `null`/`false`.
+当检测到 Plus 服务器时，ShizukuX-API 通过 AIDL stub（`IShizukuService`）分发，无需魔法事务代码即可对所有 Plus 接口进行直接的类型化访问。在标准 Shizuku 服务器上，Shell 辅助方法回退到 `Shizuku.newProcess`；仅限 Plus 的 AIDL 功能返回 `null`/`false`。
 
-**Result**: Your app works everywhere, but gets richer capabilities on ShizukuX.
+**结果**：您的应用在任何地方都能运行，但在 ShizukuX 上可获得更丰富的能力。
 
-## 📱 Documentation & Original API
-For the core logic, `UserService` documentation, and AIDL definitions, please refer to the original [Shizuku-API](https://github.com/RikkaApps/Shizuku-API) repository. ShizukuX-API includes all original `rikka.shizuku.Shizuku` methods.
+## 📱 文档与原版 API
+关于核心逻辑、`UserService` 文档和 AIDL 定义，请参阅原版 [Shizuku-API](https://github.com/RikkaApps/Shizuku-API) 仓库。ShizukuX-API 包含原版所有 `rikka.shizuku.Shizuku` 方法。
 
-## 📃 License
+## 📃 许可证
 [MIT License](LICENSE)

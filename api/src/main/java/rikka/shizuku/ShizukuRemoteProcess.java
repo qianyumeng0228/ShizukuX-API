@@ -27,9 +27,9 @@ public class ShizukuRemoteProcess extends Process implements Parcelable {
     private InputStream is;
 
     ShizukuRemoteProcess(IRemoteProcess remote) {
-        // The service returns null when the privileged process could not be started (e.g. the
-        // command failed to spawn, or a stale server rejected the call). Fail with a clear,
-        // catchable exception instead of an NPE on remote.asBinder() (SHIZUKUPLUS-85).
+        // 当特权进程无法启动时（例如命令派生失败，或过期服务器拒绝了调用），
+        // 服务会返回 null。这里抛出清晰、可捕获的异常，而不是在 remote.asBinder()
+        // 上触发 NPE（SHIZUKUPLUS-85）。
         if (remote == null) {
             throw new IllegalStateException(
                     "Shizuku returned a null remote process for newProcess() — the privileged service could not start the command");
@@ -46,7 +46,7 @@ public class ShizukuRemoteProcess extends Process implements Parcelable {
             Log.e(TAG, "linkToDeath", e);
         }
 
-        // The reference to the binder object must be hold
+        // 必须持有 binder 对象的引用
         CACHE.add(this);
     }
 

@@ -1,4 +1,4 @@
-package rikka.shizuku;
+﻿package rikka.shizuku;
 
 import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX;
 import static rikka.shizuku.ShizukuApiConstants.ATTACH_APPLICATION_API_VERSION;
@@ -79,7 +79,7 @@ public class Shizuku {
 
         @Override
         public void showPermissionConfirmation(int requestUid, int requestPid, String requestPackageName, int requestCode) {
-            // non-app
+            // 非应用端调用
         }
     };
 
@@ -183,11 +183,11 @@ public class Shizuku {
     public interface OnRequestPermissionResultListener {
 
         /**
-         * Callback for the result from requesting permission.
+         * 请求权限结果的回调。
          *
-         * @param requestCode The code passed in {@link #requestPermission(int)}.
-         * @param grantResult The grant result for which is either {@link android.content.pm.PackageManager#PERMISSION_GRANTED}
-         *                    or {@link android.content.pm.PackageManager#PERMISSION_DENIED}.
+         * @param requestCode 传入 {@link #requestPermission(int)} 的请求码。
+         * @param grantResult 授权结果，为 {@link android.content.pm.PackageManager#PERMISSION_GRANTED}
+         *                    或 {@link android.content.pm.PackageManager#PERMISSION_DENIED}。
          */
         void onRequestPermissionResult(int requestCode, int grantResult);
     }
@@ -232,15 +232,15 @@ public class Shizuku {
     private static final Handler MAIN_HANDLER = new Handler(Looper.getMainLooper());
 
     /**
-     * Add a listener that will be called when binder is received.
+     * 添加一个在收到 binder 时被调用的监听器。
      * <p>
-     * Shizuku APIs can only be used when the binder is received, or a
-     * {@link IllegalStateException} will be thrown.
+     * 只有在收到 binder 后才能使用 Shizuku API，否则将抛出
+     * {@link IllegalStateException}。
      *
-     * <p>Note:</p>
+     * <p>注意：</p>
      * <ul>
-     * <li>The listener will be called in main thread.</li>
-     * <li>The listener could be called multiply times. For example, user restarts Shizuku when app is running.</li>
+     * <li>监听器将在主线程中调用。</li>
+     * <li>监听器可能被多次调用。例如，用户在应用运行时重启了 Shizuku。</li>
      * </ul>
      * <p>
      *
@@ -251,27 +251,27 @@ public class Shizuku {
     }
 
     /**
-     * Add a listener that will be called when binder is received.
+     * 添加一个在收到 binder 时被调用的监听器。
      * <p>
-     * Shizuku APIs can only be used when the binder is received, or a
-     * {@link IllegalStateException} will be thrown.
+     * 只有在收到 binder 后才能使用 Shizuku API，否则将抛出
+     * {@link IllegalStateException}。
      *
-     * <p>Note:</p>
+     * <p>注意：</p>
      * <ul>
-     * <li>The listener could be called multiply times. For example, user restarts Shizuku when app is running.</li>
+     * <li>监听器可能被多次调用。例如，用户在应用运行时重启了 Shizuku。</li>
      * </ul>
      * <p>
      *
      * @param listener OnBinderReceivedListener
-     * @param handler  Where the listener would be called. If null, the listener will be called in main thread.
+     * @param handler  监听器的调用线程。若为 null，则在主线程中调用。
      */
     public static void addBinderReceivedListener(@NonNull OnBinderReceivedListener listener, @Nullable Handler handler) {
         addBinderReceivedListener(Objects.requireNonNull(listener), false, handler);
     }
 
     /**
-     * Same to {@link #addBinderReceivedListener(OnBinderReceivedListener)} but only call the listener
-     * immediately if the binder is already received.
+     * 与 {@link #addBinderReceivedListener(OnBinderReceivedListener)} 相同，但若 binder
+     * 已收到，则立即调用该监听器。
      *
      * @param listener OnBinderReceivedListener
      */
@@ -280,11 +280,11 @@ public class Shizuku {
     }
 
     /**
-     * Same to {@link #addBinderReceivedListener(OnBinderReceivedListener)} but only call the listener
-     * immediately if the binder is already received.
+     * 与 {@link #addBinderReceivedListener(OnBinderReceivedListener)} 相同，但若 binder
+     * 已收到，则立即调用该监听器。
      *
      * @param listener OnBinderReceivedListener
-     * @param handler  Where the listener would be called. If null, the listener will be called in main thread.
+     * @param handler  监听器的调用线程。若为 null，则在主线程中调用。
      */
     public static void addBinderReceivedListenerSticky(@NonNull OnBinderReceivedListener listener, @Nullable Handler handler) {
         addBinderReceivedListener(Objects.requireNonNull(listener), true, handler);
@@ -306,11 +306,11 @@ public class Shizuku {
     }
 
     /**
-     * Remove the listener added by {@link #addBinderReceivedListener(OnBinderReceivedListener)}
-     * or {@link #addBinderReceivedListenerSticky(OnBinderReceivedListener)}.
+     * 移除由 {@link #addBinderReceivedListener(OnBinderReceivedListener)}
+     * 或 {@link #addBinderReceivedListenerSticky(OnBinderReceivedListener)} 添加的监听器。
      *
      * @param listener OnBinderReceivedListener
-     * @return If the listener is removed.
+     * @return 监听器是否已被移除。
      */
     public static boolean removeBinderReceivedListener(@NonNull OnBinderReceivedListener listener) {
         synchronized (RECEIVED_LISTENERS) {
@@ -336,10 +336,10 @@ public class Shizuku {
     }
 
     /**
-     * Add a listener that will be called when binder is dead.
-     * <p>Note:</p>
+     * 添加一个在 binder 失效（dead）时被调用的监听器。
+     * <p>注意：</p>
      * <ul>
-     * <li>The listener will be called in main thread.</li>
+     * <li>监听器将在主线程中调用。</li>
      * </ul>
      * <p>
      *
@@ -350,10 +350,10 @@ public class Shizuku {
     }
 
     /**
-     * Add a listener that will be called when binder is dead.
+     * 添加一个在 binder 失效（dead）时被调用的监听器。
      *
      * @param listener OnBinderReceivedListener
-     * @param handler  Where the listener would be called. If null, the listener will be called in main thread.
+     * @param handler  监听器的调用线程。若为 null，则在主线程中调用。
      */
     public static void addBinderDeadListener(@NonNull OnBinderDeadListener listener, @Nullable Handler handler) {
         synchronized (RECEIVED_LISTENERS) {
@@ -362,10 +362,10 @@ public class Shizuku {
     }
 
     /**
-     * Remove the listener added by {@link #addBinderDeadListener(OnBinderDeadListener)}.
+     * 移除由 {@link #addBinderDeadListener(OnBinderDeadListener)} 添加的监听器。
      *
      * @param listener OnBinderDeadListener
-     * @return If the listener is removed.
+     * @return 监听器是否已被移除。
      */
     public static boolean removeBinderDeadListener(@NonNull OnBinderDeadListener listener) {
         synchronized (RECEIVED_LISTENERS) {
@@ -391,10 +391,10 @@ public class Shizuku {
     }
 
     /**
-     * Add a listener to receive the result of {@link #requestPermission(int)}.
-     * <p>Note:</p>
+     * 添加一个用于接收 {@link #requestPermission(int)} 结果的监听器。
+     * <p>注意：</p>
      * <ul>
-     * <li>The listener will be called in main thread.</li>
+     * <li>监听器将在主线程中调用。</li>
      * </ul>
      * <p>
      *
@@ -405,10 +405,10 @@ public class Shizuku {
     }
 
     /**
-     * Add a listener to receive the result of {@link #requestPermission(int)}.
+     * 添加一个用于接收 {@link #requestPermission(int)} 结果的监听器。
      *
      * @param listener OnBinderReceivedListener
-     * @param handler  Where the listener would be called. If null, the listener will be called in main thread.
+     * @param handler  监听器的调用线程。若为 null，则在主线程中调用。
      */
     public static void addRequestPermissionResultListener(@NonNull OnRequestPermissionResultListener listener, @Nullable Handler handler) {
         synchronized (RECEIVED_LISTENERS) {
@@ -417,10 +417,10 @@ public class Shizuku {
     }
 
     /**
-     * Remove the listener added by {@link #addRequestPermissionResultListener(OnRequestPermissionResultListener)}.
+     * 移除由 {@link #addRequestPermissionResultListener(OnRequestPermissionResultListener)} 添加的监听器。
      *
      * @param listener OnRequestPermissionResultListener
-     * @return If the listener is removed.
+     * @return 监听器是否已被移除。
      */
     public static boolean removeRequestPermissionResultListener(@NonNull OnRequestPermissionResultListener listener) {
         synchronized (RECEIVED_LISTENERS) {
@@ -509,9 +509,9 @@ public class Shizuku {
     }
 
     /**
-     * Get the binder.
+     * 获取 binder。
      * <p>
-     * Normal apps should not use this method.
+     * 普通应用不应使用此方法。
      */
     @Nullable
     public static IBinder getBinder() {
@@ -519,9 +519,9 @@ public class Shizuku {
     }
 
     /**
-     * Check if the binder is alive.
+     * 检查 binder 是否存活。
      * <p>
-     * Normal apps should use listeners rather calling this method everytime.
+     * 普通应用应使用监听器，而不是每次都调用此方法。
      *
      * @see #addBinderReceivedListener(OnBinderReceivedListener)
      * @see #addBinderReceivedListenerSticky(OnBinderReceivedListener)
@@ -537,9 +537,9 @@ public class Shizuku {
     }
 
     /**
-     * Call {@link IBinder#transact(int, Parcel, Parcel, int)} at remote service.
+     * 在远程服务上调用 {@link IBinder#transact(int, Parcel, Parcel, int)}。
      * <p>
-     * Use {@link ShizukuBinderWrapper} to wrap the original binder.
+     * 使用 {@link ShizukuBinderWrapper} 包装原始 binder。
      *
      * @see ShizukuBinderWrapper
      */
@@ -552,18 +552,18 @@ public class Shizuku {
     }
 
     /**
-     * Start a new process at remote service, parameters are passed to {@link Runtime#exec(String, String[], java.io.File)}.
-     * <br>From version 11, like "su", the process will be killed when the caller process is dead. If you have complicated
-     * requirements, use {@link Shizuku#bindUserService(UserServiceArgs, ServiceConnection)}.
+     * 在远程服务上启动一个新进程，参数传递给 {@link Runtime#exec(String, String[], java.io.File)}。
+     * <br>从版本 11 起，与 "su" 类似，当调用方进程死亡时该进程将被杀死。如果需求较复杂，
+     * 请使用 {@link Shizuku#bindUserService(UserServiceArgs, ServiceConnection)}。
      * <p>
-     * Note, you may need to read/write streams from RemoteProcess in different threads.
+     * 注意，您可能需要在不同线程中读写 RemoteProcess 的流。
      * </p>
      *
-     * @return RemoteProcess holds the binder of remote process
-     * @deprecated This method should only be used when you are transitioning from "su".
-     * Use {@link Shizuku#transactRemote(Parcel, Parcel, int)} for binder calls and {@link Shizuku#bindUserService(UserServiceArgs, ServiceConnection)}
-     * for complicated requirements.
-     * <p>This method is planned to be removed from Shizuku API 14.
+     * @return 持有远程进程 binder 的 RemoteProcess
+     * @deprecated 此方法仅应在您从 "su" 迁移时使用。
+     * binder 调用请使用 {@link Shizuku#transactRemote(Parcel, Parcel, int)}，
+     * 复杂需求请使用 {@link Shizuku#bindUserService(UserServiceArgs, ServiceConnection)}。
+     * <p>此方法计划在 Shizuku API 14 中移除。
      */
     public static ShizukuRemoteProcess newProcess(@NonNull String[] cmd, @Nullable String[] env, @Nullable String dir) {
         try {
@@ -574,10 +574,10 @@ public class Shizuku {
     }
 
     /**
-     * Returns uid of remote service.
+     * 返回远程服务的 uid。
      *
      * @return uid
-     * @throws IllegalStateException if called before binder is received
+     * @throws IllegalStateException 若在收到 binder 之前调用
      */
     public static int getUid() {
         if (serverUid != -1) return serverUid;
@@ -586,16 +586,16 @@ public class Shizuku {
         } catch (RemoteException e) {
             throw rethrowAsRuntimeException(e);
         } catch (SecurityException e) {
-            // Shizuku pre-v11 and permission is not granted
+            // Shizuku pre-v11 且未授予权限
             return -1;
         }
         return serverUid;
     }
 
     /**
-     * Returns remote service version.
+     * 返回远程服务版本。
      *
-     * @return server version
+     * @return 服务器版本
      */
     public static int getVersion() {
         if (serverApiVersion != -1) return serverApiVersion;
@@ -604,25 +604,25 @@ public class Shizuku {
         } catch (RemoteException e) {
             throw rethrowAsRuntimeException(e);
         } catch (SecurityException e) {
-            // Shizuku pre-v11 and permission is not granted
+            // Shizuku pre-v11 且未授予权限
             return -1;
         }
         return serverApiVersion;
     }
 
     /**
-     * Returns if the remote service version belows 11.
+     * 返回远程服务版本是否低于 11。
      *
-     * @return If the remote service version belows 11
+     * @return 远程服务版本是否低于 11
      */
     public static boolean isPreV11() {
         return preV11;
     }
 
     /**
-     * Return latest service version when this library was released.
+     * 返回本库发布时最新的服务版本。
      *
-     * @return Latest service version
+     * @return 最新服务版本
      * @see Shizuku#getVersion()
      */
     public static int getLatestServiceVersion() {
@@ -630,15 +630,15 @@ public class Shizuku {
     }
 
     /**
-     * Returns SELinux context of Shizuku server process.
+     * 返回 Shizuku 服务器进程的 SELinux 上下文。
      *
-     * <p>For adb, context should always be <code>u:r:shell:s0</code>.
-     * <br>For root, context depends on su the user uses. E.g., context of Magisk is <code>u:r:magisk:s0</code>.
-     * If the user's su does not allow binder calls between su and app, Shizuku will switch to context <code>u:r:shell:s0</code>.
+     * <p>对于 adb，上下文应始终为 <code>u:r:shell:s0</code>。
+     * <br>对于 root，上下文取决于用户使用的 su。例如，Magisk 的上下文为 <code>u:r:magisk:s0</code>。
+     * 如果用户的 su 不允许 su 与应用之间的 binder 调用，Shizuku 将切换到 <code>u:r:shell:s0</code> 上下文。
      * </p>
      *
-     * @return SELinux context
-     * @since Added from version 6
+     * @return SELinux 上下文
+     * @since 自版本 6 添加
      */
     public static String getSELinuxContext() {
         if (serverContext != null) return serverContext;
@@ -647,7 +647,7 @@ public class Shizuku {
         } catch (RemoteException e) {
             throw rethrowAsRuntimeException(e);
         } catch (SecurityException e) {
-            // Shizuku pre-v11 and permission is not granted
+            // Shizuku pre-v11 且未授予权限
             return null;
         }
         return serverContext;
@@ -668,12 +668,12 @@ public class Shizuku {
         }
 
         /**
-         * Daemon controls if the service should be run as daemon mode.
-         * <br>Under non-daemon mode, the service will be stopped when the app process is dead.
-         * <br>Under daemon mode, the service will run forever until {@link Shizuku#unbindUserService(UserServiceArgs, ServiceConnection, boolean)} is called.
-         * <p>For upward compatibility reason, {@code daemon} is {@code true} by default.
+         * daemon 控制服务是否以守护模式运行。
+         * <br>在非守护模式下，当应用进程死亡时服务将停止。
+         * <br>在守护模式下，服务将一直运行，直到调用 {@link Shizuku#unbindUserService(UserServiceArgs, ServiceConnection, boolean)}。
+         * <p>出于向上兼容的原因，{@code daemon} 默认为 {@code true}。
          *
-         * @param daemon Daemon
+         * @param daemon 是否守护
          */
         public UserServiceArgs daemon(boolean daemon) {
             this.daemon = daemon;
@@ -681,11 +681,11 @@ public class Shizuku {
         }
 
         /**
-         * Tag is used to distinguish different services.
-         * <p>If you want to obfuscate the user service class, you need to set a stable tag.
-         * <p>By default, user service is shared by the same packages installed in all users.
+         * tag 用于区分不同的服务。
+         * <p>如果您想混淆用户服务类，则需要设置一个稳定的 tag。
+         * <p>默认情况下，同一包在所有用户中共享同一个用户服务。
          *
-         * @param tag Tag
+         * @param tag 标签
          */
         public UserServiceArgs tag(@NonNull String tag) {
             this.tag = tag;
@@ -693,11 +693,11 @@ public class Shizuku {
         }
 
         /**
-         * Version code is used to distinguish different services.
-         * <p>Use a different version code when the service code is updated, so that
-         * the Shizuku or Sui server can recreate the user service for you.
+         * versionCode 用于区分不同的服务。
+         * <p>当服务代码更新时，使用不同的 versionCode，这样 Shizuku 或 Sui 服务器
+         * 才能为您重新创建用户服务。
          *
-         * @param versionCode Version code
+         * @param versionCode 版本号
          */
         public UserServiceArgs version(int versionCode) {
             this.versionCode = versionCode;
@@ -705,9 +705,9 @@ public class Shizuku {
         }
 
         /**
-         * Set if the service is debuggable. The process can be found when "Show all processes" is enabled.
+         * 设置服务是否可调试。启用“显示所有进程”时，可以在进程列表中找到该进程。
          *
-         * @param debuggable Debuggable
+         * @param debuggable 是否可调试
          */
         public UserServiceArgs debuggable(boolean debuggable) {
             this.debuggable = debuggable;
@@ -715,10 +715,10 @@ public class Shizuku {
         }
 
         /**
-         * Set if the name suffix of the user service process. The final process name will like
-         * <code>com.example:suffix</code>.
+         * 设置用户服务进程的名称后缀。最终进程名形如
+         * <code>com.example:suffix</code>。
          *
-         * @param processNameSuffix Name suffix
+         * @param processNameSuffix 名称后缀
          */
         public UserServiceArgs processNameSuffix(String processNameSuffix) {
             this.processName = processNameSuffix;
@@ -726,14 +726,14 @@ public class Shizuku {
         }
 
         /**
-         * Set if the 32-bits app_process should be used on 64-bits devices.
-         * <p>This method will not work on 64-bits only devices.
-         * <p>You should NEVER use this method unless if you have special requirements.
-         * <p><strong>Reasons:</strong>
-         * <p><a href="https://developer.android.com/distribute/best-practices/develop/64-bit">Google has required since August 2019 that all apps submitted to Google Play are 64-bit.</a>
-         * <p><a href="https://www.arm.com/blogs/blueprint/64-bit">ARM announced that all Arm Cortex-A CPU mobile cores will be 64-bit only from 2023.</a>
+         * 设置在 64 位设备上是否使用 32 位 app_process。
+         * <p>此方法在仅 64 位设备上无效。
+         * <p>除非有特殊需求，否则您绝不应使用此方法。
+         * <p><strong>原因：</strong>
+         * <p><a href="https://developer.android.com/distribute/best-practices/develop/64-bit">Google 自 2019 年 8 月起要求所有提交到 Google Play 的应用为 64 位。</a>
+         * <p><a href="https://www.arm.com/blogs/blueprint/64-bit">ARM 宣布自 2023 年起所有 Arm Cortex-A CPU 移动核心将仅支持 64 位。</a>
          *
-         * @param use32BitAppProcess Use 32bit app_process
+         * @param use32BitAppProcess 是否使用 32 位 app_process
          */
         private UserServiceArgs use32BitAppProcess(boolean use32BitAppProcess) {
             this.use32BitAppProcess = use32BitAppProcess;
@@ -767,42 +767,37 @@ public class Shizuku {
     }
 
     /**
-     * User Service is similar to <a href="https://developer.android.com/guide/components/bound-services">Bound Services</a>.
-     * The difference is that the service runs in a different process and as
-     * the identity (Linux UID) of root (UID 0) or shell (UID 2000, if the
-     * backend is Shizuku and user starts Shizuku with adb).
+     * 用户服务（User Service）类似于
+     * <a href="https://developer.android.com/guide/components/bound-services">绑定服务（Bound Services）</a>。
+     * 区别在于，该服务运行在另一个进程中，并以 root（UID 0）或 shell
+     * （UID 2000，若后端为 Shizuku 且用户通过 adb 启动 Shizuku）的身份（Linux UID）运行。
      * <p>
-     * The user service can run under "Daemon mode".
-     * Under "Daemon mode" (default behavior), the service will run forever
-     * until you call the "unbind" method. Under "Non-daemon mode", the service
-     * will be stopped when the process which called the "bind" method is dead.
+     * 用户服务可以“守护模式”运行。
+     * 在“守护模式”（默认行为）下，服务将一直运行，直到您调用 “unbind” 方法。
+     * 在“非守护模式”下，当调用 “bind” 方法的进程死亡时，服务将被停止。
      * <p>
-     * When the "unbind" method is called, the user service will NOT be killed.
-     * You need to implement a "destroy" method in your service. The transaction
-     * code for that method is {@code 16777115} (use {@code 16777114} in aidl).
-     * In this method, you can do some cleanup jobs and call
-     * {@link System#exit(int)} in the end.
+     * 调用 “unbind” 方法时，用户服务将不会被杀死。
+     * 您需要在服务中实现一个 “destroy” 方法。该方法的交易代码为 {@code 16777115}
+     * （在 aidl 中使用 {@code 16777114}）。在该方法中，您可以执行一些清理工作，
+     * 并在最后调用 {@link System#exit(int)}。
      * <p>
-     * If the backend is Shizuku, whether in daemon mode or not, user service
-     * will be killed when Shizuku service is stopped or restarted.
-     * Shizuku sends binder to all Shizuku apps. Therefore, you only need to
-     * start the user service again.
+     * 如果后端是 Shizuku，无论是否为守护模式，当 Shizuku 服务停止或重启时，
+     * 用户服务都将被杀死。Shizuku 会将 binder 发送给所有 Shizuku 应用。
+     * 因此，您只需重新启动用户服务即可。
      * <p>
-     * <b>Use Android APIs in user service:</b>
+     * <b>在用户服务中使用 Android API：</b>
      * <p>
-     * There is no restrictions on non-SDK APIs in user service process.
-     * However, it is not an valid Android application process. Therefore,
-     * even you can acquire an {@code Context} instance, many APIs, such as
-     * {@code Context#registerReceiver} and {@code Context#getContentResolver}
-     * will not work. You will need to dig into Android source code to find
-     * out how things works, so that you will be able to implement your service
-     * safely and elegantly.
+     * 用户服务进程中的非 SDK API 没有限制。但是，它不是一个合法的 Android
+     * 应用进程。因此，即使您可以获取 {@code Context} 实例，许多 API（例如
+     * {@code Context#registerReceiver} 和 {@code Context#getContentResolver}）
+     * 也无法工作。您需要深入研究 Android 源码以了解其工作原理，
+     * 这样您才能安全而优雅地实现您的服务。
      * <p>
-     * Be aware that, to let the UserService to use the latest code, "Run/Debug congfigurations" -
-     * "Always install with package manager" in Android Studio should be checked.
+     * 请注意，要让 UserService 使用最新代码，应在 Android Studio 中勾选
+     * “运行/调试配置”-“始终使用包管理器安装”。
      *
      * @see UserServiceArgs
-     * @since Added from version 10
+     * @since 自版本 10 添加
      */
     public static void bindUserService(@NonNull UserServiceArgs args, @NonNull ServiceConnection conn) {
         ShizukuServiceConnection connection = ShizukuServiceConnections.get(args);
@@ -815,13 +810,13 @@ public class Shizuku {
     }
 
     /**
-     * Similar to {@link Shizuku#bindUserService(UserServiceArgs, ServiceConnection)},
-     * but does not start user service if it is not running.
+     * 与 {@link Shizuku#bindUserService(UserServiceArgs, ServiceConnection)} 类似，
+     * 但若用户服务未运行，则不启动它。
      *
-     * @return service version if the service is running, -1 if the service is not running.
-     * For Shizuku pre-v13, version is always 0 if service is running.
+     * @return 若服务正在运行则返回服务版本；若服务未运行则返回 -1。
+     * 对于 Shizuku pre-v13，若服务正在运行，版本始终为 0。
      * @see Shizuku#bindUserService(UserServiceArgs, ServiceConnection)
-     * @since Added from version 12
+     * @since 自版本 12 添加
      */
     public static int peekUserService(@NonNull UserServiceArgs args, @NonNull ServiceConnection conn) {
         ShizukuServiceConnection connection = ShizukuServiceConnections.get(args);
@@ -840,21 +835,21 @@ public class Shizuku {
             return result;
         }
 
-        // On pre-13, 0 is running
+        // 在 pre-13 上，0 表示正在运行
         if (result == 0) {
             return 0;
         }
-        // Others are not running
+        // 其余均表示未运行
         return -1;
     }
 
     /**
-     * Remove user service.
+     * 移除用户服务。
      * <p>
-     * You need to implement a "destroy" method in your service,
-     * or the service will not be killed.
+     * 您需要在服务中实现一个 “destroy” 方法，
+     * 否则服务将不会被杀死。
      *
-     * @param remove Remove (kill) the remote user service.
+     * @param remove 是否移除（杀死）远程用户服务。
      * @see Shizuku#bindUserService(UserServiceArgs, ServiceConnection)
      */
     public static void unbindUserService(@NonNull UserServiceArgs args, @Nullable ServiceConnection conn, boolean remove) {
@@ -866,20 +861,19 @@ public class Shizuku {
             }
         } else {
             /*
-             * When unbindUserService remove=false is called, although the ShizukuServiceConnection
-             * instance is removed from ShizukuServiceConnections, it still exists (since its a Binder),
-             * and it will still receive "connected" "died" from the service, and then call the callback
-             * of its ServiceConnection connections[].
-             * This finally leads to the ServiceConnection#onServiceConnected/onServiceDisconnected being
-             * called multiple times after bindUserService is called later, which is not expected.
+             * 当以 remove=false 调用 unbindUserService 时，虽然 ShizukuServiceConnection
+             * 实例已从 ShizukuServiceConnections 中移除，但它仍然存在（因为它是一个 Binder），
+             * 并且仍会从服务接收 “connected”“died”，然后调用其 ServiceConnection connections[]
+             * 的回调。
+             * 这最终会导致在之后调用 bindUserService 后，ServiceConnection#onServiceConnected/
+             * onServiceDisconnected 被多次调用，这并非预期行为。
              */
 
             ShizukuServiceConnection connection = ShizukuServiceConnections.get(args);
 
             /*
-             * For newer versions of the server, we can just call removeUserService with remove=false.
-             * This will not kill the service, but will remove the ShizukuServiceConnection instance
-             * from the server.
+             * 对于较新版本的服务器，我们可以直接以 remove=false 调用 removeUserService。
+             * 这不会杀死服务，但会将 ShizukuServiceConnection 实例从服务器移除。
              */
             if (Shizuku.getVersion() >= 14 || Shizuku.getVersion() == 13 && Shizuku.getServerPatchVersion() >= 4) {
                 try {
@@ -890,7 +884,7 @@ public class Shizuku {
             }
 
             /*
-             * As a solution for older versions of the server, we can clear the connections[] here.
+             * 作为旧版本服务器的解决方案，我们可以在此处清空 connections[]。
              */
             connection.clearConnections();
             ShizukuServiceConnections.remove(connection);
@@ -898,10 +892,10 @@ public class Shizuku {
     }
 
     /**
-     * Check if remote service has specific permission.
+     * 检查远程服务是否具有特定权限。
      *
-     * @param permission permission name
-     * @return PackageManager.PERMISSION_DENIED or PackageManager.PERMISSION_GRANTED
+     * @param permission 权限名称
+     * @return PackageManager.PERMISSION_DENIED 或 PackageManager.PERMISSION_GRANTED
      */
     public static int checkRemotePermission(String permission) {
         if (serverUid == 0) return PackageManager.PERMISSION_GRANTED;
@@ -913,16 +907,15 @@ public class Shizuku {
     }
 
     /**
-     * Request permission.
+     * 请求权限。
      * <p>
-     * Different from runtime permission, you need to add a listener to receive
-     * the result.
+     * 与运行时权限不同，您需要添加一个监听器来接收结果。
      *
-     * @param requestCode Application specific request code to match with a result
-     *                    reported to {@link OnRequestPermissionResultListener#onRequestPermissionResult(int, int)}.
+     * @param requestCode 应用特定的请求码，用于与
+     *                    {@link OnRequestPermissionResultListener#onRequestPermissionResult(int, int)} 报告的结果匹配。
      * @see #addRequestPermissionResultListener(OnRequestPermissionResultListener)
      * @see #removeRequestPermissionResultListener(OnRequestPermissionResultListener)
-     * @since Added from version 11
+     * @since 自版本 11 添加
      */
     public static void requestPermission(int requestCode) {
         try {
@@ -933,11 +926,11 @@ public class Shizuku {
     }
 
     /**
-     * Check if self has permission.
+     * 检查自身是否具有权限。
      *
-     * @return Either {@link android.content.pm.PackageManager#PERMISSION_GRANTED}
-     * or {@link android.content.pm.PackageManager#PERMISSION_DENIED}.
-     * @since Added from version 11
+     * @return {@link android.content.pm.PackageManager#PERMISSION_GRANTED}
+     * 或 {@link android.content.pm.PackageManager#PERMISSION_DENIED}。
+     * @since 自版本 11 添加
      */
     public static int checkSelfPermission() {
         if (permissionGranted) return PackageManager.PERMISSION_GRANTED;
@@ -950,9 +943,9 @@ public class Shizuku {
     }
 
     /**
-     * Should show UI with rationale before requesting the permission.
+     * 在请求权限之前是否应显示带有理由的 UI。
      *
-     * @since Added from version 11
+     * @since 自版本 11 添加
      */
     public static boolean shouldShowRequestPermissionRationale() {
         if (permissionGranted) return false;
@@ -965,7 +958,7 @@ public class Shizuku {
         return shouldShowRequestPermissionRationale;
     }
 
-    // --------------------- non-app ----------------------
+    // --------------------- 非应用端调用 ----------------------
 
     @RestrictTo(LIBRARY_GROUP_PREFIX)
     public static void exit() {
@@ -1018,9 +1011,9 @@ public class Shizuku {
     }
 
     /**
-     * Check if ShizukuX Enhanced API is enabled on the server.
+     * 检查服务器上是否启用了 ShizukuX 增强 API。
      *
-     * @return True if enabled
+     * @return 若已启用则返回 true
      */
     public static boolean isCustomApiEnabled() {
         if (!pingBinder()) return false;
@@ -1034,7 +1027,7 @@ public class Shizuku {
                 return reply.readInt() != 0;
             }
         } catch (RemoteException e) {
-            // Not a ShizukuX server or transaction failed
+            // 不是 ShizukuX 服务器或事务失败
         } finally {
             reply.recycle();
             data.recycle();
@@ -1043,7 +1036,7 @@ public class Shizuku {
     }
 
     /**
-     * Internal class to support Dhizuku compatibility via Shizuku server.
+     * 通过 Shizuku 服务器支持 Dhizuku 兼容性的内部类。
      */
     public static class Dhizuku {
         @Nullable
@@ -1059,7 +1052,7 @@ public class Shizuku {
                     return reply.readStrongBinder();
                 }
             } catch (RemoteException e) {
-                // Not a ShizukuX server or transaction failed
+                // 不是 ShizukuX 服务器或事务失败
             } finally {
                 reply.recycle();
                 data.recycle();
