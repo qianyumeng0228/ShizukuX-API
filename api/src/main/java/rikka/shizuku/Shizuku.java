@@ -1,4 +1,4 @@
-﻿package rikka.shizuku;
+package rikka.shizuku;
 
 import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX;
 import static rikka.shizuku.ShizukuApiConstants.ATTACH_APPLICATION_API_VERSION;
