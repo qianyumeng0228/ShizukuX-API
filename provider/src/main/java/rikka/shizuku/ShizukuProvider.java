@@ -73,11 +73,11 @@ public class ShizukuProvider extends ContentProvider {
 
     public static final String ACTION_BINDER_RECEIVED = "af.shizuku.api.action.BINDER_RECEIVED";
 
-    private static final String EXTRA_BINDER = "af.shizuku.plus.api.intent.extra.BINDER";
+    private static final String EXTRA_BINDER = "xyz.shizuku.extra.api.intent.extra.BINDER";
 
-    public static final String PERMISSION = "af.shizuku.plus.permission.API_V23";
+    public static final String PERMISSION = "xyz.shizuku.extra.permission.API_V23";
 
-    public static final String MANAGER_APPLICATION_ID = "af.shizuku.plus.api";
+    public static final String MANAGER_APPLICATION_ID = "xyz.shizuku.extra.api";
 
     private static boolean enableMultiProcess = false;
 

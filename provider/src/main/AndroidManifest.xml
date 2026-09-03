@@ -2,7 +2,7 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools">
 
-    <uses-permission android:name="af.shizuku.plus.permission.API_V23" />
+    <uses-permission android:name="xyz.shizuku.extra.permission.API_V23" />
 
     <application tools:ignore="AllowBackup,GoogleAppIndexingWarning">
         <meta-data
