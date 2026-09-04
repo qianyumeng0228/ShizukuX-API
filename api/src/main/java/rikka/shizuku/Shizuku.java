@@ -566,10 +566,28 @@ public class Shizuku {
      * <p>此方法计划在 Shizuku API 14 中移除。
      */
     public static ShizukuRemoteProcess newProcess(@NonNull String[] cmd, @Nullable String[] env, @Nullable String dir) {
+        Parcel data = Parcel.obtain();
+        Parcel reply = Parcel.obtain();
         try {
-            return new ShizukuRemoteProcess(requireService().newProcess(cmd, env, dir));
+            data.writeInterfaceToken("moe.shizuku.server.IShizukuService");
+            data.writeStringArray(cmd);
+            data.writeStringArray(env);
+            data.writeString(dir);
+            // 手写 code 7：服务端 Service.onTransact 的手写分支按原始 AIDL code（2/3/4/7/8…）分发，
+            // 而 AIDL 生成的 Proxy 会使用 FIRST_CALL_TRANSACTION + code（即 8），两者错位，
+            // 导致 newProcess 返回 null。这里与 attachApplication（手写 17）保持一致，直接使用原始 code 7。
+            requireService().asBinder().transact(7, data, reply, 0);
+            reply.readException();
+            IBinder remote = reply.readStrongBinder();
+            if (remote == null) {
+                throw new IllegalStateException("Shizuku returned a null remote process for newProcess() — the privileged service could not start the command");
+            }
+            return new ShizukuRemoteProcess(moe.shizuku.server.IRemoteProcess.Stub.asInterface(remote));
         } catch (RemoteException e) {
             throw rethrowAsRuntimeException(e);
+        } finally {
+            reply.recycle();
+            data.recycle();
         }
     }
 
@@ -581,13 +599,23 @@ public class Shizuku {
      */
     public static int getUid() {
         if (serverUid != -1) return serverUid;
+        Parcel data = Parcel.obtain();
+        Parcel reply = Parcel.obtain();
         try {
-            serverUid = requireService().getUid();
+            data.writeInterfaceToken("moe.shizuku.server.IShizukuService");
+            // 手写 code 3，匹配服务端 Service.onTransact 的手写 case 3（getUid），
+            // 避免 AIDL 生成的 Proxy（FIRST_CALL_TRANSACTION + 3 = 4）与服务端手写分支错位。
+            requireService().asBinder().transact(3, data, reply, 0);
+            reply.readException();
+            serverUid = reply.readInt();
         } catch (RemoteException e) {
             throw rethrowAsRuntimeException(e);
         } catch (SecurityException e) {
             // Shizuku pre-v11 且未授予权限
             return -1;
+        } finally {
+            reply.recycle();
+            data.recycle();
         }
         return serverUid;
     }
@@ -599,13 +627,22 @@ public class Shizuku {
      */
     public static int getVersion() {
         if (serverApiVersion != -1) return serverApiVersion;
+        Parcel data = Parcel.obtain();
+        Parcel reply = Parcel.obtain();
         try {
-            serverApiVersion = requireService().getVersion();
+            data.writeInterfaceToken("moe.shizuku.server.IShizukuService");
+            // 手写 code 2，匹配服务端 Service.onTransact 的手写 case 2（getVersion）。
+            requireService().asBinder().transact(2, data, reply, 0);
+            reply.readException();
+            serverApiVersion = reply.readInt();
         } catch (RemoteException e) {
             throw rethrowAsRuntimeException(e);
         } catch (SecurityException e) {
             // Shizuku pre-v11 且未授予权限
             return -1;
+        } finally {
+            reply.recycle();
+            data.recycle();
         }
         return serverApiVersion;
     }
@@ -642,13 +679,22 @@ public class Shizuku {
      */
     public static String getSELinuxContext() {
         if (serverContext != null) return serverContext;
+        Parcel data = Parcel.obtain();
+        Parcel reply = Parcel.obtain();
         try {
-            serverContext = requireService().getSELinuxContext();
+            data.writeInterfaceToken("moe.shizuku.server.IShizukuService");
+            // 手写 code 8，匹配服务端 Service.onTransact 的手写 case 8（getSELinuxContext）。
+            requireService().asBinder().transact(8, data, reply, 0);
+            reply.readException();
+            serverContext = reply.readString();
         } catch (RemoteException e) {
             throw rethrowAsRuntimeException(e);
         } catch (SecurityException e) {
             // Shizuku pre-v11 且未授予权限
             return null;
+        } finally {
+            reply.recycle();
+            data.recycle();
         }
         return serverContext;
     }
@@ -899,10 +945,20 @@ public class Shizuku {
      */
     public static int checkRemotePermission(String permission) {
         if (serverUid == 0) return PackageManager.PERMISSION_GRANTED;
+        Parcel data = Parcel.obtain();
+        Parcel reply = Parcel.obtain();
         try {
-            return requireService().checkPermission(permission);
+            data.writeInterfaceToken("moe.shizuku.server.IShizukuService");
+            data.writeString(permission);
+            // 手写 code 4，匹配服务端 Service.onTransact 的手写 case 4（checkPermission）。
+            requireService().asBinder().transact(4, data, reply, 0);
+            reply.readException();
+            return reply.readInt();
         } catch (RemoteException e) {
             throw rethrowAsRuntimeException(e);
+        } finally {
+            reply.recycle();
+            data.recycle();
         }
     }
 
