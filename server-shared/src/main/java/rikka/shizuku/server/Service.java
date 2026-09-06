@@ -452,6 +452,17 @@ public abstract class Service<
                         reply.writeString(getSELinuxContext());
                     }
                     return true;
+                case 9: // getSystemProperty (repo AIDL) OR getSELinuxContext (official v13+ SDK, codes shifted +1)
+                    // getSystemProperty carries name/defaultValue (dataAvail() > 0); getSELinuxContext
+                    // has no arguments (dataAvail() == 0 after enforceInterface). Dispatch on that.
+                    if (data.dataAvail() > 0) {
+                        reply.writeNoException();
+                        reply.writeString(getSystemProperty(data.readString(), data.readString()));
+                    } else {
+                        reply.writeNoException();
+                        reply.writeString(getSELinuxContext());
+                    }
+                    return true;
             }
             // v13+ codes: requestPermission (14) and attachApplication (17 or 18 depending on client AIDL version).
             // Hail and some newer clients use code=18 for attachApplication (their AIDL has an extra method
