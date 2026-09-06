@@ -12,6 +12,13 @@ import af.shizuku.server.IContinuityBridge;
 import af.shizuku.server.IOverlayManagerPlus;
 import af.shizuku.server.INetworkGovernorPlus;
 import af.shizuku.server.IActivityManagerPlus;
+import af.shizuku.server.IStatusBarGovernorExtra;
+import af.shizuku.server.IPackageGovernorExtra;
+import af.shizuku.server.IDisplayTunerExtra;
+import af.shizuku.server.IAppInspector;
+import af.shizuku.server.IPrivilegedDataSource;
+import af.shizuku.server.IBackupRestoreExtra;
+import af.shizuku.server.IApkPatcher;
 
 interface IShizukuService {
 
@@ -84,4 +91,18 @@ interface IShizukuService {
     boolean isPlusFeatureEnabled(String key) = 120;
 
     void registerAIAutomationBridge(in IAIAutomationBridge bridge) = 121;
+
+    IStatusBarGovernorExtra getStatusBarGovernorExtra() = 122;
+
+    IPackageGovernorExtra getPackageGovernorExtra() = 123;
+
+    IDisplayTunerExtra getDisplayTunerExtra() = 124;
+
+    IAppInspector getAppInspector() = 125;
+
+    IPrivilegedDataSource getPrivilegedDataSource() = 126;
+
+    IBackupRestoreExtra getBackupRestoreExtra() = 127;
+
+    IApkPatcher getApkPatcher() = 128;
  }

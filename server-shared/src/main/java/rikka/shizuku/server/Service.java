@@ -157,7 +157,7 @@ public abstract class Service<
         }
 
         String descriptor = targetBinder.getInterfaceDescriptor();
-        
+
         // AIDL Logging (Issue #199)
         if (checkPlusFeatureEnabled("binder_logging")) {
             LOGGER.i("AIDL: uid=%d pkg=%s descriptor=%s code=%d", 
@@ -179,6 +179,12 @@ public abstract class Service<
                 return;
             }
         }
+
+        // FIX (k2013): IPackageManager code=90 is setApplicationEnabledSetting(String,int,int,int,String),
+        // NOT setApplicationHiddenSettingAsUser. shell (uid=2000) can call it directly via binder.
+        // Previous interception mapped it to pm disable-user/pm enable, which made Hail
+        // getApplicationInfoOrNull(MATCH_UNINSTALLED_PACKAGES) return null for frozen apps and
+        // caused unfreeze to fail silently. Let it pass through to targetBinder.transact().
 
         Parcel newData = Parcel.obtain();
         try {
@@ -252,12 +258,7 @@ public abstract class Service<
     @Override
     public final String getSELinuxContext() {
         enforceCallingPermission("getSELinuxContext");
-
-        try {
-            return SELinux.getContext();
-        } catch (Throwable tr) {
-            throw new IllegalStateException(tr.getMessage());
-        }
+        return SELinux.getContext();
     }
 
     @Override
@@ -393,6 +394,7 @@ public abstract class Service<
     @Override
     public boolean onTransact(int code, Parcel data, Parcel reply, int flags) throws RemoteException {
         data.setDataPosition(0);
+        android.util.Log.w("SX_DEBUG", "onTransact code=" + code + " callingUid=" + Binder.getCallingUid() + " callingPid=" + Binder.getCallingPid() + " dataSize=" + data.dataSize());
         boolean isKnownDescriptor = false;
         try {
             data.enforceInterface("moe.shizuku.server.IShizukuService");
@@ -438,18 +440,16 @@ public abstract class Service<
                     reply.writeString(getSELinuxContext());
                     return true;
             }
-            // v13+ codes: requestPermission (14) and attachApplication (17).
-            // Previously in a dead else-branch: code 17 fell through to super.onTransact() with
-            // data already past the interface token, causing enforceInterface() to read the binder
-            // argument as a descriptor string and throw — leaving clientRecord null for all API
-            // v13+ callers. That null record caused a 4-byte misalignment in transactRemote (flags
-            // field skipped), forwarding malformed data to PM; IPackageManager.packageInstaller
-            // returned null → NPE in installer apps (#406).
+            // v13+ codes: requestPermission (14) and attachApplication (17 or 18 depending on client AIDL version).
+            // Hail and some newer clients use code=18 for attachApplication (their AIDL has an extra method
+            // between shouldShowRequestPermissionRationale and attachApplication), while ShizukuX's own AIDL
+            // uses code=17. Handle both to remain compatible.
             if (code == 14 /* requestPermission */) {
                 requestPermission(data.readInt());
                 reply.writeNoException();
                 return true;
-            } else if (code == 17 /* attachApplication v13+ */) {
+            } else if (code == 17 || code == 18 /* attachApplication */) {
+                android.util.Log.w("SX_DEBUG", "code=" + code + " attachApplication dataPos=" + data.dataPosition());
                 IBinder binder = data.readStrongBinder();
                 Bundle args = data.readInt() != 0 ? Bundle.CREATOR.createFromParcel(data) : null;
                 attachApplication(IShizukuApplication.Stub.asInterface(binder), args);
