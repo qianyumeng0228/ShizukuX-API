@@ -435,9 +435,22 @@ public abstract class Service<
                     reply.writeNoException();
                     reply.writeStrongBinder(process != null ? process.asBinder() : null);
                     return true;
-                case 8: // getSELinuxContext
-                    reply.writeNoException();
-                    reply.writeString(getSELinuxContext());
+                case 8: // getSELinuxContext (v12 and below AIDL) OR newProcess (official v13+ AIDL, codes shifted +1)
+                    // Official v13+ SDKs (e.g. Mibox) map newProcess to code 8; legacy clients map
+                    // getSELinuxContext to code 8. The parcel for getSELinuxContext carries only the
+                    // interface token (dataAvail() == 0 after enforceInterface), while newProcess
+                    // carries cmd/env/dir (dataAvail() > 0). Dispatch on that.
+                    if (data.dataAvail() > 0) {
+                        String[] cmd8 = data.createStringArray();
+                        String[] env8 = data.createStringArray();
+                        String dir8 = data.readString();
+                        IRemoteProcess process8 = newProcess(cmd8, env8, dir8);
+                        reply.writeNoException();
+                        reply.writeStrongBinder(process8 != null ? process8.asBinder() : null);
+                    } else {
+                        reply.writeNoException();
+                        reply.writeString(getSELinuxContext());
+                    }
                     return true;
             }
             // v13+ codes: requestPermission (14) and attachApplication (17 or 18 depending on client AIDL version).
