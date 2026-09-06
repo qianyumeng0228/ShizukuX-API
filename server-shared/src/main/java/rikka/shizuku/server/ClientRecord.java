@@ -50,7 +50,7 @@ public class ClientRecord {
         } catch (Throwable e) {
             // The whitelist call above only requests an unfreeze; it doesn't guarantee AMS has
             // actually cleared the freeze state before this transact runs in the same call stack.
-            // A user who just tapped Allow on a rish/plus consent notification (#377) can still
+            // A user who just tapped Allow on a rish/extra consent notification (#377) can still
             // lose this race - a backoff retry gives it more real chances to land. gmm96's #371
             // writeup suggested IBinder.addFrozenStateChangeCallback (AOSP, Android 16/API 36) to
             // react to the actual unfreeze event instead of guessing at a delay - investigated,

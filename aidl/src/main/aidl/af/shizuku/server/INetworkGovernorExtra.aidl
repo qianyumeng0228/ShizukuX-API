@@ -1,6 +1,6 @@
 package af.shizuku.server;
 
-interface INetworkGovernorPlus {
+interface INetworkGovernorExtra {
     /**
      * Set the system-wide Private DNS mode and hostname.
      */

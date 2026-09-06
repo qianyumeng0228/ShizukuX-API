@@ -16,11 +16,11 @@ import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
-import af.shizuku.server.IActivityManagerPlus;
-import af.shizuku.server.IAICorePlus;
+import af.shizuku.server.IActivityManagerExtra;
+import af.shizuku.server.IAICoreExtra;
 import af.shizuku.server.IContinuityBridge;
-import af.shizuku.server.INetworkGovernorPlus;
-import af.shizuku.server.IOverlayManagerPlus;
+import af.shizuku.server.INetworkGovernorExtra;
+import af.shizuku.server.IOverlayManagerExtra;
 import af.shizuku.server.IStatusBarGovernorExtra;
 import af.shizuku.server.IPackageGovernorExtra;
 import af.shizuku.server.IDisplayTunerExtra;
@@ -31,7 +31,7 @@ import af.shizuku.server.IApkPatcher;
 import moe.shizuku.server.IShizukuService;
 import af.shizuku.server.IStorageProxy;
 import af.shizuku.server.IVirtualMachineManager;
-import af.shizuku.server.IWindowManagerPlus;
+import af.shizuku.server.IWindowManagerExtra;
 
 /**
  * ShizukuX API — extended features available when the connected Shizuku server
@@ -80,7 +80,7 @@ public class ShizukuXAPI {
      * is confirmed active, or {@code null} otherwise.
      */
     @Nullable
-    private static IShizukuService requirePlusService() {
+    private static IShizukuService requireExtraService() {
         if (!isEnhancedApiSupported()) return null;
         return getShizukuService();
     }
@@ -227,19 +227,19 @@ public class ShizukuXAPI {
     // OverlayManager — requires enhanced API
     // -------------------------------------------------------------------------
 
-    /** Runtime resource overlay (RRO) management via the Plus AIDL. */
+    /** Runtime resource overlay (RRO) management via the Extra AIDL. */
     public static class OverlayManager {
 
         @Nullable
-        private static IOverlayManagerPlus getService() {
-            IShizukuService svc = requirePlusService();
+        private static IOverlayManagerExtra getService() {
+            IShizukuService svc = requireExtraService();
             if (svc == null) return null;
-            try { return svc.getOverlayManagerPlus(); }
-            catch (RemoteException e) { Log.w(TAG, "getOverlayManagerPlus", e); return null; }
+            try { return svc.getOverlayManagerExtra(); }
+            catch (RemoteException e) { Log.w(TAG, "getOverlayManagerExtra", e); return null; }
         }
 
         public static boolean enableOverlay(@NonNull String packageName) {
-            IOverlayManagerPlus s = getService();
+            IOverlayManagerExtra s = getService();
             if (s != null) {
                 try { return s.setOverlayEnabled(packageName, true); }
                 catch (RemoteException e) { Log.w(TAG, "enableOverlay " + packageName, e); }
@@ -248,7 +248,7 @@ public class ShizukuXAPI {
         }
 
         public static boolean disableOverlay(@NonNull String packageName) {
-            IOverlayManagerPlus s = getService();
+            IOverlayManagerExtra s = getService();
             if (s != null) {
                 try { return s.setOverlayEnabled(packageName, false); }
                 catch (RemoteException e) { Log.w(TAG, "disableOverlay " + packageName, e); }
@@ -257,7 +257,7 @@ public class ShizukuXAPI {
         }
 
         public static boolean setHighestPriority(@NonNull String packageName) {
-            IOverlayManagerPlus s = getService();
+            IOverlayManagerExtra s = getService();
             if (s != null) {
                 try { return s.setHighestPriority(packageName); }
                 catch (RemoteException e) { Log.w(TAG, "setHighestPriority " + packageName, e); }
@@ -267,7 +267,7 @@ public class ShizukuXAPI {
 
         @NonNull
         public static List<String> getAllOverlays() {
-            IOverlayManagerPlus s = getService();
+            IOverlayManagerExtra s = getService();
             if (s != null) {
                 try { return s.getAllOverlays(); }
                 catch (RemoteException e) { Log.w(TAG, "getAllOverlays", e); }
@@ -278,7 +278,7 @@ public class ShizukuXAPI {
         public static boolean injectResourceOverlay(
                 @NonNull String targetPackage, @NonNull String resourceName,
                 int type, @NonNull String value) {
-            IOverlayManagerPlus s = getService();
+            IOverlayManagerExtra s = getService();
             if (s != null) {
                 try { return s.injectResourceOverlay(targetPackage, resourceName, type, value); }
                 catch (RemoteException e) { Log.w(TAG, "injectResourceOverlay " + targetPackage, e); }
@@ -295,15 +295,15 @@ public class ShizukuXAPI {
     public static class ActivityManager {
 
         @Nullable
-        private static IActivityManagerPlus getService() {
-            IShizukuService svc = requirePlusService();
+        private static IActivityManagerExtra getService() {
+            IShizukuService svc = requireExtraService();
             if (svc == null) return null;
-            try { return svc.getActivityManagerPlus(); }
-            catch (RemoteException e) { Log.w(TAG, "getActivityManagerPlus", e); return null; }
+            try { return svc.getActivityManagerExtra(); }
+            catch (RemoteException e) { Log.w(TAG, "getActivityManagerExtra", e); return null; }
         }
 
         public static boolean deepForceStop(@NonNull String packageName) {
-            IActivityManagerPlus s = getService();
+            IActivityManagerExtra s = getService();
             if (s != null) {
                 try { return s.deepForceStop(packageName); }
                 catch (RemoteException e) { Log.w(TAG, "deepForceStop " + packageName, e); }
@@ -312,14 +312,14 @@ public class ShizukuXAPI {
         }
 
         public static boolean killAllBackgroundProcesses() {
-            IActivityManagerPlus s = getService();
+            IActivityManagerExtra s = getService();
             if (s == null) return false;
             try { return s.killAllBackgroundProcesses(); }
             catch (RemoteException e) { Log.w(TAG, "killAllBackgroundProcesses", e); return false; }
         }
 
         public static boolean setAppStandbyBucket(@NonNull String packageName, int bucket) {
-            IActivityManagerPlus s = getService();
+            IActivityManagerExtra s = getService();
             if (s == null) return false;
             try { return s.setAppStandbyBucket(packageName, bucket); }
             catch (RemoteException e) { Log.w(TAG, "setAppStandbyBucket " + packageName, e); return false; }
@@ -334,22 +334,22 @@ public class ShizukuXAPI {
     public static class WindowManager {
 
         @Nullable
-        private static IWindowManagerPlus getService() {
-            IShizukuService svc = requirePlusService();
+        private static IWindowManagerExtra getService() {
+            IShizukuService svc = requireExtraService();
             if (svc == null) return null;
-            try { return svc.getWindowManagerPlus(); }
-            catch (RemoteException e) { Log.w(TAG, "getWindowManagerPlus", e); return null; }
+            try { return svc.getWindowManagerExtra(); }
+            catch (RemoteException e) { Log.w(TAG, "getWindowManagerExtra", e); return null; }
         }
 
         public static void forceResizable(@NonNull String packageName, boolean enabled) {
-            IWindowManagerPlus s = getService();
+            IWindowManagerExtra s = getService();
             if (s == null) return;
             try { s.forceResizable(packageName, enabled); }
             catch (RemoteException e) { Log.w(TAG, "forceResizable " + packageName, e); }
         }
 
         public static void setAlwaysOnTop(int taskId, boolean enabled) {
-            IWindowManagerPlus s = getService();
+            IWindowManagerExtra s = getService();
             if (s == null) return;
             try { s.setAlwaysOnTop(taskId, enabled); }
             catch (RemoteException e) { Log.w(TAG, "setAlwaysOnTop task=" + taskId, e); }
@@ -364,29 +364,29 @@ public class ShizukuXAPI {
     public static class NetworkGovernor {
 
         @Nullable
-        private static INetworkGovernorPlus getService() {
-            IShizukuService svc = requirePlusService();
+        private static INetworkGovernorExtra getService() {
+            IShizukuService svc = requireExtraService();
             if (svc == null) return null;
-            try { return svc.getNetworkGovernorPlus(); }
-            catch (RemoteException e) { Log.w(TAG, "getNetworkGovernorPlus", e); return null; }
+            try { return svc.getNetworkGovernorExtra(); }
+            catch (RemoteException e) { Log.w(TAG, "getNetworkGovernorExtra", e); return null; }
         }
 
         public static boolean setPrivateDns(@Nullable String mode, @Nullable String hostname) {
-            INetworkGovernorPlus s = getService();
+            INetworkGovernorExtra s = getService();
             if (s == null) return false;
             try { return s.setPrivateDns(mode, hostname); }
             catch (RemoteException e) { Log.w(TAG, "setPrivateDns", e); return false; }
         }
 
         public static boolean restrictAppNetwork(@NonNull String packageName, boolean restricted) {
-            INetworkGovernorPlus s = getService();
+            INetworkGovernorExtra s = getService();
             if (s == null) return false;
             try { return s.restrictAppNetwork(packageName, restricted); }
             catch (RemoteException e) { Log.w(TAG, "restrictAppNetwork " + packageName, e); return false; }
         }
 
         public static boolean isAppNetworkRestricted(@NonNull String packageName) {
-            INetworkGovernorPlus s = getService();
+            INetworkGovernorExtra s = getService();
             if (s == null) return false;
             try { return s.isAppNetworkRestricted(packageName); }
             catch (RemoteException e) { Log.w(TAG, "isAppNetworkRestricted " + packageName, e); return false; }
@@ -402,7 +402,7 @@ public class ShizukuXAPI {
 
         @Nullable
         private static IStatusBarGovernorExtra getService() {
-            IShizukuService svc = requirePlusService();
+            IShizukuService svc = requireExtraService();
             if (svc == null) return null;
             try { return svc.getStatusBarGovernorExtra(); }
             catch (RemoteException e) { Log.w(TAG, "getStatusBarGovernorExtra", e); return null; }
@@ -495,15 +495,15 @@ public class ShizukuXAPI {
     public static class AICore {
 
         @Nullable
-        private static IAICorePlus getService() {
-            IShizukuService svc = requirePlusService();
+        private static IAICoreExtra getService() {
+            IShizukuService svc = requireExtraService();
             if (svc == null) return null;
-            try { return svc.getAICorePlus(); }
-            catch (RemoteException e) { Log.w(TAG, "getAICorePlus", e); return null; }
+            try { return svc.getAICoreExtra(); }
+            catch (RemoteException e) { Log.w(TAG, "getAICoreExtra", e); return null; }
         }
 
         public static int getPixelColor(int x, int y) {
-            IAICorePlus s = getService();
+            IAICoreExtra s = getService();
             if (s == null) return 0;
             try { return s.getPixelColor(x, y); }
             catch (RemoteException e) { Log.w(TAG, "getPixelColor", e); return 0; }
@@ -511,7 +511,7 @@ public class ShizukuXAPI {
 
         @Nullable
         public static Bundle scheduleNPULoad(@NonNull Bundle taskData) {
-            IAICorePlus s = getService();
+            IAICoreExtra s = getService();
             if (s == null) return null;
             try { return s.scheduleNPULoad(taskData); }
             catch (RemoteException e) { Log.w(TAG, "scheduleNPULoad", e); return null; }
@@ -519,7 +519,7 @@ public class ShizukuXAPI {
 
         @Nullable
         public static Bitmap captureLayer(int layerId) {
-            IAICorePlus s = getService();
+            IAICoreExtra s = getService();
             if (s == null) return null;
             try { return s.captureLayer(layerId); }
             catch (RemoteException e) { Log.w(TAG, "captureLayer " + layerId, e); return null; }
@@ -527,28 +527,28 @@ public class ShizukuXAPI {
 
         @Nullable
         public static Bundle getSystemContext() {
-            IAICorePlus s = getService();
+            IAICoreExtra s = getService();
             if (s == null) return null;
             try { return s.getSystemContext(); }
             catch (RemoteException e) { Log.w(TAG, "getSystemContext", e); return null; }
         }
 
         public static boolean simulateTouch(float x, float y) {
-            IAICorePlus s = getService();
+            IAICoreExtra s = getService();
             if (s == null) return false;
             try { return s.simulateTouch(x, y); }
             catch (RemoteException e) { Log.w(TAG, "simulateTouch", e); return false; }
         }
 
         public static boolean simulateSwipe(float x1, float y1, float x2, float y2, int durationMs) {
-            IAICorePlus s = getService();
+            IAICoreExtra s = getService();
             if (s == null) return false;
             try { return s.simulateSwipe(x1, y1, x2, y2, durationMs); }
             catch (RemoteException e) { Log.w(TAG, "simulateSwipe", e); return false; }
         }
 
         public static boolean simulateText(@NonNull String text) {
-            IAICorePlus s = getService();
+            IAICoreExtra s = getService();
             if (s == null) return false;
             try { return s.simulateText(text); }
             catch (RemoteException e) { Log.w(TAG, "simulateText", e); return false; }
@@ -556,7 +556,7 @@ public class ShizukuXAPI {
 
         @Nullable
         public static String getWindowHierarchy() {
-            IAICorePlus s = getService();
+            IAICoreExtra s = getService();
             if (s == null) return null;
             try { return s.getWindowHierarchy(); }
             catch (RemoteException e) { Log.w(TAG, "getWindowHierarchy", e); return null; }
@@ -572,7 +572,7 @@ public class ShizukuXAPI {
 
         @Nullable
         private static IContinuityBridge getService() {
-            IShizukuService svc = requirePlusService();
+            IShizukuService svc = requireExtraService();
             if (svc == null) return null;
             try { return svc.getContinuityBridge(); }
             catch (RemoteException e) { Log.w(TAG, "getContinuityBridge", e); return null; }
@@ -596,7 +596,7 @@ public class ShizukuXAPI {
 
         @Nullable
         private static IVirtualMachineManager getService() {
-            IShizukuService svc = requirePlusService();
+            IShizukuService svc = requireExtraService();
             if (svc == null) return null;
             try { return svc.getVirtualMachineManager(); }
             catch (RemoteException e) { Log.w(TAG, "getVirtualMachineManager", e); return null; }
@@ -651,12 +651,12 @@ public class ShizukuXAPI {
     // StorageProxy — requires enhanced API
     // -------------------------------------------------------------------------
 
-    /** Privileged file-system operations via the Plus storage bridge. */
+    /** Privileged file-system operations via the Extra storage bridge. */
     public static class StorageProxy {
 
         @Nullable
         private static IStorageProxy getService() {
-            IShizukuService svc = requirePlusService();
+            IShizukuService svc = requireExtraService();
             if (svc == null) return null;
             try { return svc.getStorageProxy(); }
             catch (RemoteException e) { Log.w(TAG, "getStorageProxy", e); return null; }
@@ -730,7 +730,7 @@ public class ShizukuXAPI {
     // Dhizuku — Device Owner compatibility
     // -------------------------------------------------------------------------
 
-    /** Dhizuku (Device Owner) compatibility layer exposed by the Plus server. */
+    /** Dhizuku (Device Owner) compatibility layer exposed by the Extra server. */
     public static class Dhizuku {
 
         @Nullable
@@ -756,7 +756,7 @@ public class ShizukuXAPI {
 
         @Nullable
         private static IPackageGovernorExtra getService() {
-            IShizukuService svc = requirePlusService();
+            IShizukuService svc = requireExtraService();
             if (svc == null) return null;
             try { return svc.getPackageGovernorExtra(); }
             catch (RemoteException e) { Log.w(TAG, "getPackageGovernorExtra", e); return null; }
@@ -868,7 +868,7 @@ public class ShizukuXAPI {
 
         @Nullable
         private static IDisplayTunerExtra getService() {
-            IShizukuService svc = requirePlusService();
+            IShizukuService svc = requireExtraService();
             if (svc == null) return null;
             try { return svc.getDisplayTunerExtra(); }
             catch (RemoteException e) { Log.w(TAG, "getDisplayTunerExtra", e); return null; }
@@ -933,7 +933,7 @@ public class ShizukuXAPI {
 
         @Nullable
         private static IAppInspector getService() {
-            IShizukuService svc = requirePlusService();
+            IShizukuService svc = requireExtraService();
             if (svc == null) return null;
             try { return svc.getAppInspector(); }
             catch (RemoteException e) { Log.w(TAG, "getAppInspector", e); return null; }
@@ -1065,7 +1065,7 @@ public class ShizukuXAPI {
 
         @Nullable
         private static IPrivilegedDataSource getService() {
-            IShizukuService svc = requirePlusService();
+            IShizukuService svc = requireExtraService();
             if (svc == null) return null;
             try { return svc.getPrivilegedDataSource(); }
             catch (RemoteException e) { Log.w(TAG, "getPrivilegedDataSource", e); return null; }
@@ -1317,7 +1317,7 @@ public class ShizukuXAPI {
 
         @Nullable
         private static IBackupRestoreExtra getService() {
-            IShizukuService svc = requirePlusService();
+            IShizukuService svc = requireExtraService();
             if (svc == null) return null;
             try { return svc.getBackupRestoreExtra(); }
             catch (RemoteException e) { Log.w(TAG, "getBackupRestoreExtra", e); return null; }
@@ -1683,7 +1683,7 @@ public class ShizukuXAPI {
     public static class ApkPatcher {
 
         private static IApkPatcher getService() {
-            IShizukuService svc = requirePlusService();
+            IShizukuService svc = requireExtraService();
             if (svc == null) return null;
             try { return svc.getApkPatcher(); }
             catch (RemoteException e) { Log.w(TAG, "getApkPatcher", e); return null; }

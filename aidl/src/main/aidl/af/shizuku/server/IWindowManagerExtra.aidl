@@ -3,7 +3,7 @@ package af.shizuku.server;
 import android.graphics.Rect;
 import android.os.Bundle;
 
-interface IWindowManagerPlus {
+interface IWindowManagerExtra {
     /**
      * Force enable free-form resizing for a specific package,
      * bypassing the app's manifest restrictions.

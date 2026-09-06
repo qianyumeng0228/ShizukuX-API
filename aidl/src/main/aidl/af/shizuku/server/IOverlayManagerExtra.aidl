@@ -1,6 +1,6 @@
 package af.shizuku.server;
 
-interface IOverlayManagerPlus {
+interface IOverlayManagerExtra {
     /**
      * Enable or disable a specific system overlay.
      */

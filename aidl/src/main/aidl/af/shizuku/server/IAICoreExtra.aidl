@@ -3,7 +3,7 @@ package af.shizuku.server;
 import android.os.Bundle;
 import android.graphics.Bitmap;
 
-interface IAICorePlus {
+interface IAICoreExtra {
     /**
      * Get a color sample from any pixel on the screen.
      * Extension of the Android 17 EyeDropper API for privileged use.

@@ -1,6 +1,6 @@
 package af.shizuku.server;
 
-interface IActivityManagerPlus {
+interface IActivityManagerExtra {
     /**
      * Force stop a package and clear its background tasks deeply.
      */

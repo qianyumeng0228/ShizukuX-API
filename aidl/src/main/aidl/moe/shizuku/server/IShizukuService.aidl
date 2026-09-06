@@ -5,13 +5,13 @@ import moe.shizuku.server.IShizukuApplication;
 import moe.shizuku.server.IShizukuServiceConnection;
 import af.shizuku.server.IVirtualMachineManager;
 import af.shizuku.server.IStorageProxy;
-import af.shizuku.server.IAICorePlus;
+import af.shizuku.server.IAICoreExtra;
 import af.shizuku.server.IAIAutomationBridge;
-import af.shizuku.server.IWindowManagerPlus;
+import af.shizuku.server.IWindowManagerExtra;
 import af.shizuku.server.IContinuityBridge;
-import af.shizuku.server.IOverlayManagerPlus;
-import af.shizuku.server.INetworkGovernorPlus;
-import af.shizuku.server.IActivityManagerPlus;
+import af.shizuku.server.IOverlayManagerExtra;
+import af.shizuku.server.INetworkGovernorExtra;
+import af.shizuku.server.IActivityManagerExtra;
 import af.shizuku.server.IStatusBarGovernorExtra;
 import af.shizuku.server.IPackageGovernorExtra;
 import af.shizuku.server.IDisplayTunerExtra;
@@ -66,29 +66,29 @@ interface IShizukuService {
 
     IStorageProxy getStorageProxy() = 108;
 
-    IAICorePlus getAICorePlus() = 109;
+    IAICoreExtra getAICoreExtra() = 109;
 
-    IWindowManagerPlus getWindowManagerPlus() = 110;
+    IWindowManagerExtra getWindowManagerExtra() = 110;
 
     IContinuityBridge getContinuityBridge() = 111;
 
-    void updatePlusFeatureEnabled(String key, boolean enabled) = 112;
+    void updateExtraFeatureEnabled(String key, boolean enabled) = 112;
 
-    void setPlusSetting(String key, String value) = 116;
+    void setExtraSetting(String key, String value) = 116;
 
-    IOverlayManagerPlus getOverlayManagerPlus() = 113;
+    IOverlayManagerExtra getOverlayManagerExtra() = 113;
 
-    INetworkGovernorPlus getNetworkGovernorPlus() = 114;
+    INetworkGovernorExtra getNetworkGovernorExtra() = 114;
 
-    IActivityManagerPlus getActivityManagerPlus() = 115;
+    IActivityManagerExtra getActivityManagerExtra() = 115;
 
     void elevateApp(String packageName) = 117;
 
     List<String> getRecentLogs() = 118;
 
-    String getPlusSetting(String key) = 119;
+    String getExtraSetting(String key) = 119;
 
-    boolean isPlusFeatureEnabled(String key) = 120;
+    boolean isExtraFeatureEnabled(String key) = 120;
 
     void registerAIAutomationBridge(in IAIAutomationBridge bridge) = 121;
 

@@ -159,14 +159,14 @@ public abstract class Service<
         String descriptor = targetBinder.getInterfaceDescriptor();
 
         // AIDL Logging (Issue #199)
-        if (checkPlusFeatureEnabled("binder_logging")) {
+        if (checkExtraFeatureEnabled("binder_logging")) {
             LOGGER.i("AIDL: uid=%d pkg=%s descriptor=%s code=%d", 
                 callingUid, (clientRecord != null ? clientRecord.packageName : "unknown"), 
                 descriptor, targetCode);
         }
 
         // Binder Firewall (Issue #199)
-        if (checkPlusFeatureEnabled("binder_firewall")) {
+        if (checkExtraFeatureEnabled("binder_firewall")) {
             if (isBinderCallBlocked(callingUid, descriptor, targetCode)) {
                 LOGGER.w("Firewall: Blocked transaction %s code %d from uid %d", descriptor, targetCode, callingUid);
                 throw new SecurityException("Binder Firewall: Transaction blocked by ShizukuX policy");
@@ -174,7 +174,7 @@ public abstract class Service<
         }
 
         // Shadow Binder (Issue #199) - optional interception point
-        if (checkPlusFeatureEnabled("shadow_binder")) {
+        if (checkExtraFeatureEnabled("shadow_binder")) {
             if (handleShadowBinderTransaction(targetBinder, targetCode, data, reply, targetFlags)) {
                 return;
             }
@@ -202,7 +202,7 @@ public abstract class Service<
         } finally {
             newData.recycle();
             long durationNs = System.nanoTime() - startTime;
-            if (checkPlusFeatureEnabled("binder_profiler")) {
+            if (checkExtraFeatureEnabled("binder_profiler")) {
                 recordTransactionMetrics(clientRecord, descriptor, targetCode, durationNs);
             }
         }
@@ -386,7 +386,7 @@ public abstract class Service<
         return new RemoteProcessHolder(process, token);
     }
 
-    public boolean checkPlusFeatureEnabled(String key) {
+    public boolean checkExtraFeatureEnabled(String key) {
         return true;
     }
 
