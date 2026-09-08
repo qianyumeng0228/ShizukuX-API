@@ -632,9 +632,14 @@ public class Shizuku {
         try {
             data.writeInterfaceToken("moe.shizuku.server.IShizukuService");
             // 手写 code 2，匹配服务端 Service.onTransact 的手写 case 2（getVersion）。
-            requireService().asBinder().transact(2, data, reply, 0);
+            // transact() 返回 false 时 reply 是空的（readInt() 会得到 0）。不要把这个失败缓存成
+            // 版本 0 —— 那会让首页永远显示“版本 0”并误报“需要升级”，即使服务端稍后恢复正常。
+            // 保持 -1（未知），下次调用会重新尝试。
+            boolean handled = requireService().asBinder().transact(2, data, reply, 0);
             reply.readException();
-            serverApiVersion = reply.readInt();
+            if (handled) {
+                serverApiVersion = reply.readInt();
+            }
         } catch (RemoteException e) {
             throw rethrowAsRuntimeException(e);
         } catch (SecurityException e) {
