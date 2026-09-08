@@ -468,9 +468,70 @@ public abstract class Service<
             // Hail and some newer clients use code=18 for attachApplication (their AIDL has an extra method
             // between shouldShowRequestPermissionRationale and attachApplication), while ShizukuX's own AIDL
             // uses code=17. Handle both to remain compatible.
-            if (code == 14 /* requestPermission */) {
+            //
+            // Legacy v12-era clients (e.g. web1n.stopapp "小黑屋" 1.9.x, compiled against the pre-2021 AIDL
+            // where requestPermission=13 / checkSelfPermission=14 / attachApplication=16) transact with those
+            // codes, which collide with ShizukuX's shifted AIDL (requestPermission=14, shouldShow=16,
+            // attachApplication=17). Without compatibility they never attach (16 lands on shouldShow, whose
+            // requireClient throws "Not an attached client", swallowed by the client) and their
+            // checkSelfPermission (14, no args) lands on requestPermission(int), which then throws the
+            // uncaught IllegalStateException that makes the app appear to "not open". Dispatch on the parcel
+            // shape — the legacy variants carry different argument layouts than the current AIDL methods —
+            // exactly like the code-8/9 dual-meaning cases above.
+            // Legacy v12-era clients (e.g. web1n.stopapp "小黑屋" 1.9.x, compiled against a pre-2021
+            // AIDL where attachApplication=14 (IBinder+String), checkSelfPermission=16, requestPermission=13)
+            // transact with codes that collide with ShizukuX's shifted AIDL (requestPermission=14,
+            // shouldShow=16, attachApplication=17). Without compatibility they never attach and their
+            // permission checks throw the uncaught IllegalStateException that makes the app appear to
+            // "not open". Dispatch on the parcel shape — same technique as the code-8/9 dual-meaning
+            // cases above: current requestPermission(14) carries exactly one int (dataAvail==4), a
+            // legacy checkSelfPermission(14) carries nothing, a legacy attachApplication(14) carries
+            // IBinder+String (dataAvail > 4).
+            if (code == 13 /* v12-era requestPermission(int) */) {
                 requestPermission(data.readInt());
                 reply.writeNoException();
+                return true;
+            } else if (code == 14) {
+                int avail14 = data.dataAvail();
+                if (avail14 == 0) {
+                    // v12-era checkSelfPermission (no args)
+                    reply.writeNoException();
+                    reply.writeInt(checkSelfPermission() ? 1 : 0);
+                } else if (avail14 == 4) {
+                    // current AIDL requestPermission(int)
+                    requestPermission(data.readInt());
+                    reply.writeNoException();
+                } else {
+                    // v12-era attachApplication: IBinder + String packageName
+                    IBinder legacyBinder = data.readStrongBinder();
+                    String legacyPackage = data.readString();
+                    Bundle legacyArgs = new Bundle();
+                    legacyArgs.putString(ShizukuApiConstants.ATTACH_APPLICATION_PACKAGE_NAME, legacyPackage);
+                    attachApplication(IShizukuApplication.Stub.asInterface(legacyBinder), legacyArgs);
+                    reply.writeNoException();
+                }
+                return true;
+            } else if (code == 16) {
+                int avail16 = data.dataAvail();
+                if (avail16 == 0) {
+                    // current AIDL shouldShowRequestPermissionRationale, or a v12-era client calling
+                    // checkSelfPermission through the same code. Both take no arguments; tell them
+                    // apart by whether the caller is a legacy (<13) attached client.
+                    int callingUid16 = Binder.getCallingUid();
+                    int callingPid16 = Binder.getCallingPid();
+                    ClientRecord legacyCheck = clientManager.findClient(callingUid16, callingPid16);
+                    boolean legacySemantics = legacyCheck != null && legacyCheck.apiVersion < 13;
+                    reply.writeNoException();
+                    reply.writeInt((legacySemantics ? checkSelfPermission() : shouldShowRequestPermissionRationale()) ? 1 : 0);
+                } else {
+                    // v12-era attachApplication: IBinder + String (current shouldShow never carries payload)
+                    IBinder legacyBinder = data.readStrongBinder();
+                    String legacyPackage = data.readString();
+                    Bundle legacyArgs = new Bundle();
+                    legacyArgs.putString(ShizukuApiConstants.ATTACH_APPLICATION_PACKAGE_NAME, legacyPackage);
+                    attachApplication(IShizukuApplication.Stub.asInterface(legacyBinder), legacyArgs);
+                    reply.writeNoException();
+                }
                 return true;
             } else if (code == 17 || code == 18 /* attachApplication */) {
                 android.util.Log.w("SX_DEBUG", "code=" + code + " attachApplication dataPos=" + data.dataPosition());
