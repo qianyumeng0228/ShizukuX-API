@@ -43,6 +43,21 @@ public abstract class Service<
 
     protected static final Logger LOGGER = new Logger("Service");
 
+    /**
+     * Clients compiled against the official v13.7+ AIDL (e.g. LSPatch API 102), whose transaction
+     * codes are shifted by two relative to this repo's AIDL: requestPermission=15,
+     * checkSelfPermission=16, shouldShowRequestPermissionRationale=17, attachApplication=18
+     * (this repo: 14/15/16/17). They are detected on first code=15-with-int call (requestPermission)
+     * and remembered per (uid,pid) so that their code=16 (no-arg) can be answered as
+     * checkSelfPermission() instead of this repo's shouldShowRequestPermissionRationale().
+     */
+    private static final java.util.Set<Long> SHIFTED_AIDL_CLIENTS = new java.util.HashSet<>();
+
+    private static long shiftedKey(int uid, int pid) {
+        return ((long) uid << 32) | (pid & 0xffffffffL);
+    }
+
+
     public Service() {
         RishConfig.init(ShizukuApiConstants.BINDER_DESCRIPTOR, 30000);
 
@@ -173,8 +188,13 @@ public abstract class Service<
             }
         }
 
-        // Shadow Binder (Issue #199) - optional interception point
-        if (checkExtraFeatureEnabled("shadow_binder")) {
+        // Shadow Binder (Issue #199) - optional interception point.
+        // handleShadowBinderTransaction also serves root_magisk_mocking (Binder-level Magisk
+        // presence spoof) and stealth_mode (hide manager/drop-in from IPackageManager), so the
+        // gate must include those features, not only shadow_binder.
+        if (checkExtraFeatureEnabled("shadow_binder")
+                || checkExtraFeatureEnabled("root_magisk_mocking")
+                || checkExtraFeatureEnabled("stealth_mode")) {
             if (handleShadowBinderTransaction(targetBinder, targetCode, data, reply, targetFlags)) {
                 return;
             }
@@ -511,18 +531,36 @@ public abstract class Service<
                     reply.writeNoException();
                 }
                 return true;
+            } else if (code == 15) {
+                // Dual meaning, dispatched on parcel shape:
+                // - no args  -> this repo's checkSelfPermission() (current AIDL: code 15)
+                // - one int  -> official v13.7+ shifted requestPermission(int requestCode)
+                //   (this repo AIDL maps requestPermission to 14; official v13.7+ AIDL inserts two
+                //    methods before it, so newer clients like LSPatch (API 102) transact it as 15)
+                int avail15 = data.dataAvail();
+                if (avail15 == 0) {
+                    reply.writeNoException();
+                    reply.writeInt(checkSelfPermission() ? 1 : 0);
+                } else {
+                    SHIFTED_AIDL_CLIENTS.add(shiftedKey(Binder.getCallingUid(), Binder.getCallingPid()));
+                    requestPermission(data.readInt());
+                    reply.writeNoException();
+                }
+                return true;
             } else if (code == 16) {
                 int avail16 = data.dataAvail();
                 if (avail16 == 0) {
                     // current AIDL shouldShowRequestPermissionRationale, or a v12-era client calling
-                    // checkSelfPermission through the same code. Both take no arguments; tell them
-                    // apart by whether the caller is a legacy (<13) attached client.
+                    // checkSelfPermission through the same code, or an official v13.7+ shifted client
+                    // (detected via a prior code=15 requestPermission) calling checkSelfPermission.
+                    // Both take no arguments; tell them apart by the caller identity.
                     int callingUid16 = Binder.getCallingUid();
                     int callingPid16 = Binder.getCallingPid();
                     ClientRecord legacyCheck = clientManager.findClient(callingUid16, callingPid16);
                     boolean legacySemantics = legacyCheck != null && legacyCheck.apiVersion < 13;
+                    boolean shiftedSemantics = SHIFTED_AIDL_CLIENTS.contains(shiftedKey(callingUid16, callingPid16));
                     reply.writeNoException();
-                    reply.writeInt((legacySemantics ? checkSelfPermission() : shouldShowRequestPermissionRationale()) ? 1 : 0);
+                    reply.writeInt((shiftedSemantics || legacySemantics ? checkSelfPermission() : shouldShowRequestPermissionRationale()) ? 1 : 0);
                 } else {
                     // v12-era attachApplication: IBinder + String (current shouldShow never carries payload)
                     IBinder legacyBinder = data.readStrongBinder();
@@ -534,7 +572,24 @@ public abstract class Service<
                 }
                 return true;
             } else if (code == 17 || code == 18 /* attachApplication */) {
+                // code 17: this repo's attachApplication (IBinder + Bundle), OR the official
+                // v13.7+ shifted shouldShowRequestPermissionRationale (no args). Dispatched on
+                // parcel shape — attachApplication always carries a strong binder and a bundle,
+                // shouldShow never carries a payload.
+                // code 18: official v13.7+ shifted attachApplication (IBinder + Bundle).
+                int avail17 = data.dataAvail();
+                if (code == 17 && avail17 == 0) {
+                    reply.writeNoException();
+                    reply.writeInt(shouldShowRequestPermissionRationale() ? 1 : 0);
+                    return true;
+                }
                 android.util.Log.w("SX_DEBUG", "code=" + code + " attachApplication dataPos=" + data.dataPosition());
+                if (code == 18) {
+                    // code 18 is exclusively the official v13.7+ attachApplication — this repo's
+                    // own client library attaches via code 17. Remember it so its subsequent
+                    // no-arg code-16 calls are answered as checkSelfPermission(), not shouldShow.
+                    SHIFTED_AIDL_CLIENTS.add(shiftedKey(Binder.getCallingUid(), Binder.getCallingPid()));
+                }
                 IBinder binder = data.readStrongBinder();
                 Bundle args = data.readInt() != 0 ? Bundle.CREATOR.createFromParcel(data) : null;
                 attachApplication(IShizukuApplication.Stub.asInterface(binder), args);
