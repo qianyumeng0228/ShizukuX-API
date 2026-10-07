@@ -19,6 +19,7 @@ import af.shizuku.server.IAppInspector;
 import af.shizuku.server.IPrivilegedDataSource;
 import af.shizuku.server.IBackupRestoreExtra;
 import af.shizuku.server.IApkPatcher;
+import af.shizuku.server.IDeviceControlExtra;
 
 interface IShizukuService {
 
@@ -105,4 +106,6 @@ interface IShizukuService {
     IBackupRestoreExtra getBackupRestoreExtra() = 127;
 
     IApkPatcher getApkPatcher() = 128;
+
+    IDeviceControlExtra getDeviceControlExtra() = 129;
  }
