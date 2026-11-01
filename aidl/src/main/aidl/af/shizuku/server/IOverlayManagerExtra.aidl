@@ -25,4 +25,15 @@ interface IOverlayManagerExtra {
      * [Ghost Bridge] Prepares an OverlayFS shadow mount for rootless system modification simulation.
      */
     boolean prepareShadowMount(String callingPackage, String partition);
+
+    /**
+     * [Samsung One UI 7+] Write `current_sec_active_themepackage` to the system settings table.
+     *
+     * On One UI 7+ (Android 15 / API 35+) Samsung shows a mandatory setup wizard the first time
+     * a theme package is activated. Writing this setting before (or right after) enabling overlays
+     * bypasses that flow entirely. Pass null / empty string to clear.
+     *
+     * No-op (returns true) on non-Samsung devices.
+     */
+    boolean setActiveThemePackage(String packageName);
 }
