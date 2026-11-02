@@ -55,4 +55,12 @@ interface IStorageProxy {
      * Returns a readable ParcelFileDescriptor to the tar stream, or null on failure.
      */
     ParcelFileDescriptor tarDirectory(String dirPath, String packageContext);
+
+    /**
+     * Restore a gzip-compressed tar stream into destDirPath.
+     * If packageContext is non-null and the target is a debuggable app's /data/data
+     * directory, uses run-as <packageContext> to access it.
+     * Returns true on success.
+     */
+    boolean restoreTarDirectory(String destDirPath, String packageContext, in ParcelFileDescriptor tarPfd);
 }
